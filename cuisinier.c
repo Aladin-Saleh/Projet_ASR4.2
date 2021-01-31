@@ -7,7 +7,6 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "types.h"
 
 int main(int argc, char const *argv[])
 {
