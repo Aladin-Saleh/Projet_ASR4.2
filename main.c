@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "types.h"
 
 #define FICHIER_CLE "cle.serv"
 
