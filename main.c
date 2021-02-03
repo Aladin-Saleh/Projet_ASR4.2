@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
     struct carte* s_carte;
     key_t cle;
     int id;
-    int nombre_ust_req = 0;
+    //int nombre_ust_req = 0;
    
 
     if (argc <= 5)

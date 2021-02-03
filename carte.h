@@ -1,5 +1,3 @@
-#ifndef CARTE_H
-#define CARTE_H
 
 struct carte
 {
@@ -10,5 +8,3 @@ struct carte
 };
 
 void afficher_carte(struct carte* s_carte);
-
-#endif
