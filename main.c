@@ -8,12 +8,13 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "carte.h"
+#include "types.h"
+#include "erreur.h"
 
-#define FICHIER_CLE "cle.serv"
 
 void arreter_processus(int signal);//Arrete tout les processus à la réception du signal
 int set_signal_handler(int sig, void (*handler)(int));//Set le signal
-void erreur(char * texte_erreur);//Gère les erreurs
 
 //argument nb_serveurs nb_cuisiniers nb_term nb_spec nb_1 nb_2 ... nb_k
 int main(int argc, char const *argv[])
@@ -22,28 +23,24 @@ int main(int argc, char const *argv[])
     key_t cle;
     int id;
     int nombre_ust_req = 0;
-    
-    int nombre_ustencil = argc - 5;
-    printf("%d\n",nombre_ustencil);
-    srand(time(0));
-    
-    for (int index_spec = 0; index_spec < strtol(argv[4],0,10); index_spec++)
-    {
-        printf("Spécialité n°%d : ",index_spec);
-         for (int index_ustencil = 5; index_ustencil < nombre_ustencil; index_ustencil++)
-            {
-                nombre_ust_req = strtol(argv[index_spec],0,10);
-                printf("ustcl(%d) = %d  ",index_spec,nombre_ust_req);
-            }
-            printf("\n");
-    }
-    
-
+   
 
     if (argc <= 5)
     {
        erreur("Usage : <nb_serveurs> <nb_cuisiniers> <nb_term> <nb_spec> <nb_1> <nb_2> ... <nb_k>");
     }
+
+    s_carte->nombre_ustencil = argc - 5;
+    s_carte->nombre_specialite = strtol(argv[4],NULL,10);
+    for (int i = s_carte->nombre_ustencil; i < argc; i++)
+    {
+        s_carte->nombre_ustencil_dispo_categorie[i] = strtol(argv[i],NULL,10);
+    }
+    
+    afficher_carte(s_carte);    
+
+    
+
 
     cle = ftok(FICHIER_CLE,'a');
 
@@ -66,7 +63,7 @@ int main(int argc, char const *argv[])
     
     while (1)
     {
-        s_carte->nombre_specialite = strtol(argv[4],0,10);
+        //s_carte.nombre_specialite = strtol(argv[4],0,10);
     }
     printf("---\n");
 

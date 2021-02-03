@@ -8,11 +8,12 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "types.h"
+#include "carte.h"
 #include <time.h>
 
 
 struct carte* s_carte;
-
+void afficher_carte(struct carte* s_carte);
 
 int main(int argc, char const *argv[])
 {
@@ -77,4 +78,22 @@ void creation_carte(int nbr_spclt)
 
 
 
+}
+
+
+
+
+void afficher_carte(struct carte* s_carte)
+{
+
+
+    for (int index_spec = 0; index_spec < strtol(s_carte->nombre_specialite,0,10); index_spec++)
+    {
+        printf("Spécialité n°%d : \n\n\n",index_spec+1);
+         for (int index_ustencil = 0; index_ustencil < s_carte->nombre_ustencil; index_ustencil++)
+            {
+                printf("ustencile n°%d - nombre nécessaire d'ustencil = %d/%d  ,",index_ustencil+1,0,s_carte->nombre_ustencil_dispo_categorie[index_ustencil]);
+            }
+            printf("\n");
+    }
 }
