@@ -12,8 +12,9 @@
 #include <time.h>
 
 
-struct carte* s_carte;
-void afficher_carte(struct carte* s_carte);
+carte* s_carte;
+void erreur(char * texte_erreur);
+void afficher_carte(carte* s_carte);
 
 int main(int argc, char const *argv[])
 {
@@ -27,12 +28,12 @@ int main(int argc, char const *argv[])
         erreur("Erreur lors de la création de la clé...");
     }
     
-    if((id = shmget(cle,sizeof(struct carte),0)) == -1)
+    if((id = shmget(cle,sizeof(carte),0)) == -1)
     {
         erreur("Erreur id = -1 ...");
     }
 
-    if((s_carte = (struct carte*)shmat(id,NULL,0)) == NULL)
+    if((s_carte = (carte*)shmat(id,NULL,0)) == NULL)
     { 
         erreur("Erreur shmat (le segment n'a pas pu être associé)...");
     }
@@ -81,19 +82,8 @@ void creation_carte(int nbr_spclt)
 }
 
 
-
-
-void afficher_carte(struct carte* s_carte)
+void erreur(char * texte_erreur)
 {
-
-
-    for (int index_spec = 0; index_spec < strtol(s_carte->nombre_specialite,0,10); index_spec++)
-    {
-        printf("Spécialité n°%d : \n\n\n",index_spec+1);
-         for (int index_ustencil = 0; index_ustencil < s_carte->nombre_ustencil; index_ustencil++)
-            {
-                printf("ustencile n°%d - nombre nécessaire d'ustencil = %d/%d  ,",index_ustencil+1,0,s_carte->nombre_ustencil_dispo_categorie[index_ustencil]);
-            }
-            printf("\n");
-    }
+    printf("%s\n",texte_erreur);
+    exit(-1);
 }

@@ -1,11 +1,8 @@
 CC = gcc -Wall 
 
-all : main serveur cuisinier carte erreur client
+all : main serveur cuisinier carte client
 
-erreur : erreur.c
-	$(CC) erreur.c -o erreur
-
-carte : carte.c types.h
+carte : carte.c
 	$(CC) carte.c -o carte
 
 cuisinier : cuisinier.c types.h
@@ -17,9 +14,9 @@ serveur : serveur.c types.h
 client : client.c types.h
 	$(CC) client.c -o client
 
-main : main.c types.h carte.h
+main : main.c types.h
 	$(CC) main.c -o main
 	touch cle.serv
 	
 clean :
-	rm -f client main serveur cuisinier carte cle.serv
+	rm -f client main serveur cuisinier cle.serv carte
