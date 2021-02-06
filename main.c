@@ -13,30 +13,39 @@
 #include "types.h"
 
 
+
 void arreter_processus(int signal);//Arrete tout les processus à la réception du signal
 int set_signal_handler(int sig, void (*handler)(int));//Set le signal
 void erreur(char * texte_erreur);//Gere les erreurs
 
-void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_spec,int nbr_ust)
+void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust)
 {
-    //int ind = 0;
+    srand(time(NULL));
+    int ind = 0;
     //int ust_necsr_spe = 0;
     s_carte->nombre_ustencil = argc - 5;
-
-    printf("%d\n",s_carte->nombre_ustencil);
+    s_carte->nombre_specialite = strtol(argv[4],0,10);
+    printf("nombre d'ustencil : %d\n",s_carte->nombre_ustencil);
   
     //ust_necsr_spe = rand()%strtol(argv[i],0,10);
    
 
     //s_carte->liste_ustencil = malloc(sizeof(int*) * sizeof(int*));
     //s_carte->ustencil_pour_chaque_recette = malloc(sizeof(int**)*sizeof(int**));
+    
+    for (int i = argc - s_carte->nombre_ustencil; i < argc; i++)
+    {
+        *(s_carte->liste_ustencil+ind)= strtol(argv[i],0,10);
+        ind++;
+    }
 
-    for (int i = 0; i < nbr_spec; i++)
+    for (int i = 0; i < s_carte->nombre_specialite; i++)
     {
         for (int j = 0; j < s_carte->nombre_ustencil; j++)
         {
-            printf("- %d\n",rand()%*(s_carte->liste_ustencil+j));
-            *(s_carte->ustencil_pour_chaque_recette+i+j) = 5;//rand()%*(s_carte->liste_ustencil+j);
+            int buf = *(s_carte->liste_ustencil+j);
+            *(s_carte->ustencil_pour_chaque_recette+i+j) = rand()%buf;
+            //printf("%d\n",*(s_carte->ustencil_pour_chaque_recette+i+j));
 
         }
         
@@ -48,15 +57,13 @@ void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_spec,int nbr_
 
 void afficher_carte(carte* s_carte)
 {
-    srand(time(NULL));
-    int ust_req;
-
+    //int ust_req;
+    printf("nombre de spécialité : %d\n",s_carte->nombre_specialite);
     for (int index_spec = 0; index_spec < s_carte->nombre_specialite; index_spec++)
     {
         printf("Spécialité n°%d : ",index_spec+1);
          for (int index_ustencil = 0; index_ustencil < s_carte->nombre_ustencil; index_ustencil++)
             {
-                //ust_req = rand()%*(s_carte->liste_ustencil+index_ustencil);
                 printf("ustencile n°%d = %d/%d |",index_ustencil+1,*(s_carte->ustencil_pour_chaque_recette+index_spec+index_ustencil),*(s_carte->liste_ustencil+index_ustencil));
             }
             printf("\n");
@@ -77,16 +84,14 @@ int main(int argc, char const *argv[])
        erreur("Usage : <nb_serveurs> <nb_cuisiniers> <nb_term> <nb_spec> <nb_1> <nb_2> ... <nb_k>");
     }
 
-    int nombre_specialite = strtol(argv[4],0,10);
-    for (int i = argc - s_carte->nombre_ustencil; i < argc; i++)
-    {
-        *(s_carte->liste_ustencil+ind)= strtol(argv[i],0,10);
-        ind++;
-    }
     s_carte->liste_ustencil = malloc(sizeof(int*) * sizeof(int*));
     s_carte->ustencil_pour_chaque_recette = malloc(sizeof(int**)*sizeof(int**));
 
-    cree_carte(s_carte,argv,argc,nombre_specialite,argc-5);
+ 
+
+    
+
+    cree_carte(s_carte,argv,argc,argc-5);
     afficher_carte(s_carte);
     
     free(s_carte);
