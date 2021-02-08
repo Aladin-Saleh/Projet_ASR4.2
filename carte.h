@@ -10,5 +10,5 @@ typedef struct
 }
 carte;
 
-void afficher_carte(carte* s_carte);
-void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust);
+//void afficher_carte(carte* s_carte);
+//void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust);

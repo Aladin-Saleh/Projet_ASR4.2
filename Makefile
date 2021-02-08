@@ -21,4 +21,4 @@ main : main.c types.h carte.h
 	touch cle.serv
 	
 clean :
-	rm -f client main serveur cuisinier cle.serv carte
+	rm -f client main serveur cuisinier cle.serv carte erreur

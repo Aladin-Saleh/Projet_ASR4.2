@@ -25,6 +25,9 @@ int main(int argc, char const *argv[])
     key_t cle;
     int id;
 
+    carte* s_carte = malloc(sizeof(carte) * sizeof(carte));
+    s_carte->liste_ustencil = malloc(sizeof(int*) * sizeof(int*));
+    s_carte->ustencil_pour_chaque_recette = malloc(sizeof(int**)*sizeof(int**));
     //s_carte->nombre_specialite = strtol(argv[1],NULL,10);
 
     if ((cle = ftok(FICHIER_CLE,'a')) == -1)
@@ -46,6 +49,7 @@ int main(int argc, char const *argv[])
     
         sleep(5);
         printf("nombre de spécialité : %d\n",s_carte->nombre_specialite);
+        printf("nombre d'ustencil pour recette : %d\n",**(s_carte->ustencil_pour_chaque_recette+0+1));
     
 
       if (shmdt((char*)s_carte) == -1)

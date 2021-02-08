@@ -17,6 +17,7 @@
 #include "types.h"
 
 
+carte* s_carte;
 
 void arreter_processus(int signal);//Arrete tout les processus à la réception du signal
 int set_signal_handler(int sig, void (*handler)(int));//Set le signal
@@ -28,19 +29,24 @@ void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust);
 //argument nb_serveurs nb_cuisiniers nb_term nb_spec nb_1 nb_2 ... nb_k
 int main(int argc, char const *argv[])
 {
-    carte* s_carte = malloc(sizeof(carte) * sizeof(carte));
     key_t cle;
     int id;
     srand(time(0));
 
 
+
+    s_carte = malloc(sizeof(carte) * sizeof(carte));
     s_carte->liste_ustencil = malloc(sizeof(int*) * sizeof(int*));
     s_carte->ustencil_pour_chaque_recette = malloc(sizeof(int**)*sizeof(int**));
+
+
 
     if (argc <= 5)
     {
        erreur("Usage : <nb_serveurs> <nb_cuisiniers> <nb_term> <nb_spec> <nb_1> <nb_2> ... <nb_k>");
     }
+
+
 
 
 
@@ -50,16 +56,18 @@ int main(int argc, char const *argv[])
     {
         erreur("Erreur lors de la création de la clé...");
     }
-    printf("La a était clé crée avec succès...\n");
-    sleep(1);//Il sert à rien ce sleep, mais je trouvais juste stylé à l'execution :) 
+    printf("La clé a était clé crée avec succès...\n");
+   //sleep(1);//Il sert à rien ce sleep, mais je trouvais juste stylé à l'execution :) 
 
     if((id = shmget(cle,sizeof(carte),0666|IPC_CREAT)) == -1)
     {
         erreur("Erreur id = -1 ...");
     }
     printf("id de la mémoire partagée récuperer avec succès...\n");
-    sleep(1);
+   //sleep(1);
 
+
+    
     cree_carte(s_carte,argv,argc,argc-5);
     afficher_carte(s_carte);
 
@@ -67,13 +75,18 @@ int main(int argc, char const *argv[])
     { 
         erreur("Erreur shmat (le segment n'a pas pu être associé)...");
     }
-    printf("Le segment mémoire a été attaché...\n");
-    sleep(1);
-
-
-
     
-    sleep(1);
+  
+
+    printf("Le segment mémoire a été attaché...\n");
+   //sleep(1);
+
+
+    //printf("Donnée envoyé : nombre_specialite = %d \n",s_carte->nombre_specialite );
+    //printf("Donnée envoyé : nombre_ustencil = %d\n",s_carte->nombre_ustencil );
+    
+    
+    //sleep(1);
     printf("Envoi...\n");
 
    if (set_signal_handler(SIGINT,arreter_processus) != 0)
@@ -85,7 +98,7 @@ int main(int argc, char const *argv[])
     free(s_carte->ustencil_pour_chaque_recette);
     free(s_carte->liste_ustencil);
     free(s_carte);
-  
+
    
     
     
@@ -144,6 +157,8 @@ void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust)
             
         }
     }
+
+
 }
 
 /*Cette fonction permet l'affichage de la carte
@@ -151,6 +166,8 @@ void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust)
 */
 void afficher_carte(carte* s_carte)
 {
+
+    printf("debug\n" );
     printf("nombre de spécialité : %d\n",s_carte->nombre_specialite);
     for (int index_spec = 0; index_spec < s_carte->nombre_specialite; index_spec++)
     {
