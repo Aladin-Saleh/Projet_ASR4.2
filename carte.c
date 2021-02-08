@@ -16,18 +16,18 @@
 #include <time.h>
 
 
-carte* s_carte;
+struct carte* s_carte;
 void erreur(char * texte_erreur);
-void afficher_carte(carte* s_carte);
-void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust);
+void afficher_carte(struct carte* s_carte);
+void cree_carte(struct carte* s_carte,char const *argv[],int argc,int nbr_ust);
 int main(int argc, char const *argv[])
 {
     key_t cle;
     int id;
 
-    carte* s_carte = malloc(sizeof(carte) * sizeof(carte));
-    s_carte->liste_ustencil = malloc(sizeof(int*) * sizeof(int*));
-    s_carte->ustencil_pour_chaque_recette = malloc(sizeof(int**)*sizeof(int**));
+    struct carte* s_carte ;//= malloc(sizeof(carte) * sizeof(carte));
+    //s_carte->liste_ustencil = malloc(sizeof(int*) * sizeof(int*));
+    //s_carte->ustencil_pour_chaque_recette = malloc(sizeof(int**)*sizeof(int**));
     //s_carte->nombre_specialite = strtol(argv[1],NULL,10);
 
     if ((cle = ftok(FICHIER_CLE,'a')) == -1)
@@ -35,12 +35,12 @@ int main(int argc, char const *argv[])
         erreur("Erreur lors de la création de la clé...");
     }
     
-    if((id = shmget(cle,sizeof(carte),0)) == -1)
+    if((id = shmget(cle,sizeof(struct carte),0)) == -1)
     {
         erreur("Erreur id = -1 ...");
     }
 
-    if((s_carte = (carte*)shmat(id,NULL,0)) == NULL)
+    if((s_carte = (struct carte*)shmat(id,NULL,0)) == NULL)
     { 
         erreur("Erreur shmat (le segment n'a pas pu être associé)...");
     }
@@ -49,7 +49,7 @@ int main(int argc, char const *argv[])
     
         sleep(5);
         printf("nombre de spécialité : %d\n",s_carte->nombre_specialite);
-        printf("nombre d'ustencil pour recette : %d\n",**(s_carte->ustencil_pour_chaque_recette+0+1));
+        //printf("nombre d'ustencil pour recette : %d\n",**(s_carte->ustencil_pour_chaque_recette+0+1));
     
 
       if (shmdt((char*)s_carte) == -1)
@@ -72,7 +72,7 @@ int main(int argc, char const *argv[])
 }
 
 /*Cette fonction vas crée la carte, elle devra être lancé dans le main*/
-void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust)
+void cree_carte(struct carte* s_carte,char const *argv[],int argc,int nbr_ust)
 {
     srand(time(NULL));
     int ind = 0;
@@ -82,7 +82,7 @@ void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust)
   
     for (int i = argc - s_carte->nombre_ustencil; i < argc; i++)
     {
-        *(s_carte->liste_ustencil+ind)= strtol(argv[i],0,10);
+        s_carte->liste_ustencil[ind]= strtol(argv[i],0,10);
         ind++;
     }
 
@@ -90,8 +90,8 @@ void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust)
     {
         for (int j = 0; j < s_carte->nombre_ustencil; j++)
         {
-            int buf = *(s_carte->liste_ustencil+j);
-            *(s_carte->ustencil_pour_chaque_recette+i+j) = rand()%buf;
+            int buf = s_carte->liste_ustencil[j];
+            s_carte->ustencil_pour_chaque_recette[i][j] = rand()%buf;
             
         }
     }
@@ -100,7 +100,7 @@ void cree_carte(carte* s_carte,char const *argv[],int argc,int nbr_ust)
 /*Cette fonction permet l'affichage de la carte
 * Il est important que la carte soit deja crée avant l'affichage (logique ¯\_(ツ)_/¯)
 */
-void afficher_carte(carte* s_carte)
+void afficher_carte(struct carte* s_carte)
 {
     printf("nombre de spécialité : %d\n",s_carte->nombre_specialite);
     for (int index_spec = 0; index_spec < s_carte->nombre_specialite; index_spec++)
@@ -108,13 +108,11 @@ void afficher_carte(carte* s_carte)
         printf("Spécialité n°%d : ",index_spec+1);
          for (int index_ustencil = 0; index_ustencil < s_carte->nombre_ustencil; index_ustencil++)
             {
-                printf("ustencile n°%d = %ls/%d |",index_ustencil+1,*(s_carte->ustencil_pour_chaque_recette+index_spec+index_ustencil),*(s_carte->liste_ustencil+index_ustencil));
+                printf("ustencile n°%d = %d/%d |",index_ustencil+1,s_carte->ustencil_pour_chaque_recette[index_spec][index_ustencil],s_carte->liste_ustencil[index_ustencil]);
             }
             printf("\n");
     }
 }
-
-
 
 void erreur(char * texte_erreur)
 {
