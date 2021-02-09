@@ -6,6 +6,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "erreur.h"
+void erreur(char * texte_erreur)
+{
+    printf("%s\n",texte_erreur);
+    exit(-1);
+}
 
-void erreur(char * texte_erreur);
-
+void debug(char * message_debug)
+{
+       printf ("\033[34;01m%s\033[00m\n",message_debug);
+}

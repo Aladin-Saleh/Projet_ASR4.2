@@ -1,24 +1,30 @@
-CC = gcc -Wall 
+main : main.o erreur.o carte_manager.o signal.o carte.o
+	gcc -o main main.o erreur.o carte_manager.o signal.o && gcc -o carte carte.o erreur.o carte_manager.o signal.o
 
-all : main serveur cuisinier carte client
+carte_manager : carte_manager.c
+	gcc -o carte_manager.o -c carte_manager.c -Wall
 
-OFILES = carte.o main.o
-
-carte : carte.c
-	$(CC) carte.c -o carte erreur.c
-
-cuisinier : cuisinier.c types.h
-	$(CC) cuisinier.c -o cuisinier
-
-serveur : serveur.c types.h
-	$(CC) serveur.c -o serveur
-
-client : client.c types.h
-	$(CC) client.c -o client
-
-main : main.c types.h carte.h
-	$(CC) main.c -o main 
+main.o : main.c
+	gcc -o main.o -c main.c -Wall
 	touch cle.serv
-	
+
+carte.o : carte.c
+	gcc -o carte.o -c carte.c -Wall
+
+client.o : client.c
+	gcc -o client.o -c client.c -Wall
+
+cuisinier.o : cuisinier.c
+	gcc -o cuisinier.o -c cuisinier.c -Wall
+
+serveur.o : serveur.c
+	gcc -o serveur.o -c serveur.c -Wall
+
+erreur.o : erreur.c
+	gcc -o erreur.o -c erreur.c -Wall
+
+signal.o : signal.c
+	gcc -o signal.o -c signal.c -Wall
+
 clean :
-	rm -f client main serveur cuisinier cle.serv carte erreur
+	rm -f client main serveur cuisinier cle.serv carte erreur *.o
