@@ -20,10 +20,12 @@
 void cree_carte(struct carte* s_carte,char const *argv[],int argc)
 {
     debug("DEBUG");
+    srand(time(NULL));
+    
     s_carte->liste_ustencil = malloc(sizeof(int*) * sizeof(int*));
     s_carte->ustencil_pour_chaque_recette = malloc(sizeof(int**)*sizeof(int**));
 
-    srand(time(NULL));
+
     int ind = 0;
     int buf = 0;
     s_carte->nombre_ustencil = argc - 5;
@@ -42,8 +44,8 @@ void cree_carte(struct carte* s_carte,char const *argv[],int argc)
         {
            buf = s_carte->liste_ustencil[j];
            printf("%d\n",s_carte->liste_ustencil[j]);
-           *(s_carte->ustencil_pour_chaque_recette+i+j) = rand()%buf;
-           printf("%ls\n",*(s_carte->ustencil_pour_chaque_recette+i+j));
+           //*(s_carte->ustencil_pour_chaque_recette+i+j) = rand()%buf;
+           //printf("%ls\n",s_carte->ustencil_pour_chaque_recette[i][j]);
             
         }
     }

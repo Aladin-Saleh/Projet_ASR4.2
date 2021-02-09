@@ -14,6 +14,7 @@
 #include "types.h"
 #include <time.h>
 #include "carte_manager.h"
+#include "erreur.h"
 
 
 struct carte* s_carte;

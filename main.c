@@ -17,7 +17,9 @@
 #include "signal.h"
 #include "types.h"
 #include "erreur.h"
+
 int id;
+int continuer = 1;
 struct carte * s_carte;
 void arreter_processus(int signal);//Arrete tout les processus à la réception du signal
 int set_signal_handler(int sig, void (*handler)(int));//Set le signal
@@ -29,7 +31,8 @@ int main(int argc, char const *argv[])
     key_t cle;
     
     srand(time(0));
-
+    s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
+    
 
     if (argc <= 5)
     {
@@ -57,7 +60,7 @@ int main(int argc, char const *argv[])
     sleep(1);
   
     
-    //cree_carte(s_carte,argv,argc);
+    cree_carte(s_carte,argv,argc);
     //afficher_carte(s_carte);
 
     
@@ -69,7 +72,7 @@ int main(int argc, char const *argv[])
        erreur("Erreur signal (set)...");
    }
     
-    while (1)
+    while (continuer)
     {
        
         
@@ -84,7 +87,7 @@ int main(int argc, char const *argv[])
 
 void arreter_processus(int signal)
 {
-    
+    continuer = 0;
     if (shmdt((char*)s_carte) == -1)
     {
         erreur("Error shmdt");
@@ -98,7 +101,7 @@ void arreter_processus(int signal)
         
     }  
     printf("Signal d'arret recu ! \n");
-    //exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 
 
