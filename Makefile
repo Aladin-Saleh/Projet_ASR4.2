@@ -1,5 +1,5 @@
-main : main.o erreur.o carte_manager.o signal.o carte.o
-	gcc -o main main.o erreur.o carte_manager.o signal.o && gcc -o carte carte.o erreur.o carte_manager.o signal.o
+main : main.o erreur.o carte_manager.o signal.o carte.o client.o serveur.o
+	gcc -o main main.o erreur.o carte_manager.o signal.o && gcc -o carte carte.o erreur.o carte_manager.o signal.o && gcc -o client client.o && gcc -o serveur serveur.o
 
 carte_manager : carte_manager.c
 	gcc -o carte_manager.o -c carte_manager.c -Wall

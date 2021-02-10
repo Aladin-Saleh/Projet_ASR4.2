@@ -34,6 +34,7 @@ int main (int argc, char *argv[]){
 	/* cacul de la cle de la file    */
 
 	cleCli = ftok(FICHIER_CLE,'a');
+	printf("clecli = %d\n", cleCli);
 	cleCui = ftok(FICHIER_CLE, 'c');
 
 
@@ -43,7 +44,7 @@ int main (int argc, char *argv[]){
 
 	/* Creation file de message :    */
 
-	file_mess_cli = msgget(cleCui,0666|IPC_CREAT);
+	file_mess_cli = msgget(cleCli, 0);
 	file_mess_cui = msgget(cleCui, 0666|IPC_CREAT);
 	printf("file_mess_cli = %d, file_mess_cui = %d \n",file_mess_cli, file_mess_cui);
 	//sleep(10);
@@ -52,6 +53,8 @@ int main (int argc, char *argv[]){
 	assert( file_mess_cui != -1);
 
 	while(1) { 
+
+		fprintf(stdout, "Serveur n° %d attend une commande\n", numOrdre);
 
 		/* serveur attend des commandes de clients, de type 1 :        */
 	 	

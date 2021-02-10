@@ -36,12 +36,13 @@ int main(int argc, char const *argv[]) {
 	/* Calcul de la cle	                 */
 
 	cle = ftok(FICHIER_CLE,'a');
+	printf("cle = %d\n", cle);
 	assert(cle != -1);
 
 
 	/* Recuperation file de message :    */
 
-	file_mess = msgget(cle,0);
+	file_mess = msgget(cle, 0666 | IPC_CREAT);
 	assert(file_mess != -1);
 
 
@@ -54,6 +55,8 @@ int main(int argc, char const *argv[]) {
 	/* Selection du serveur le moins occupé */
 
 	for(int i = 0; i < 10 /* serveurs.length */; i++) {
+
+		/************************************************************** PAS ENCORE DE RECUP DES SERVEURS **************************************************************/
 
 		//occupationServeur = msg_qnum(serveurs[i]);		// récupère la taille de la file du serveur
 		if(occupationServeur < taillePlusCourtServ) {	// Si le serveur actuel a une occupation plus courte que le moins occupé
