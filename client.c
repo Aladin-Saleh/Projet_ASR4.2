@@ -79,7 +79,7 @@ int main(int argc, char const *argv[]) {
 
 	/* Envoie la commande au serveur */
 
-	if(msgsnd(file_mess, &commande, sizeof(command_t)-sizeof(int), 0) == -1) {
+	if(msgsnd(file_mess, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
 		perror("Erreur lors de l'envoi de la commande ");
 		exit(-1);
 	}
