@@ -27,7 +27,7 @@ void cree_carte(struct carte* s_carte,int* liste_ustencil)
        for (int j = 0; j <= s_carte->nombre_ustencil; j++)
        {
             s_carte->buf = rand()%liste_ustencil[s_carte->j];
-            printf("Main[%d][%d] : %d\n",i,j,s_carte->buf);
+            //printf("Main[%d][%d] : %d\n",i,j,s_carte->buf);
             s_carte->i = i;
             s_carte->j = j;
             //sleep(1);

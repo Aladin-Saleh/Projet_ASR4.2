@@ -11,13 +11,26 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <sys/sem.h>
 #include <signal.h>
 #include <assert.h>
 #include "types.h"
+#include "erreur.h"
 #include <sys/stat.h>
 
+int id_sem;
 int file_mess_serv; 				/* ID de la file, necessairement global pour pouvoir la supprimer a la terminaison */
 key_t cleServ; 						/* cle de la file     */
+union semun u;
+
+union semun {
+    int val;
+    struct semid_ds *buf;
+    unsigned short  *array;
+};
+
+struct sembuf p = { 0, -1, SEM_UNDO};
+struct sembuf v = { 0, +1, SEM_UNDO};
 
 
 
@@ -41,8 +54,21 @@ int main (int argc, char *argv[]){
 	file_mess_serv = msgget(cleServ, 0);
 	//printf("file_mess_serv = %d\n",file_mess_serv);
 	//sleep(10);
+
+	if ((id_sem = semget(cleServ,1,0666|IPC_CREAT)) == -1)
+	{
+		erreur("Erreur lors de la creation de la semaphore...");
+	}
 	
 	assert( file_mess_serv != -1);
+
+
+	u.val = 1;
+
+	if(semctl(id_sem, 0, SETVAL, u) < 0)
+    {
+        erreur("Erreur semclt....");
+    }
 
 	while(1) { 
 

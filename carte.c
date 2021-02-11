@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
 {
     key_t cle;
     int id;
-    int array_spec[100][100];//Des que l'on aura mis l'exec multiplier 100 par le nombre de spécialité
+    int array_spec[100][100];
     //int **buf;
     struct carte* s_carte;
     if ((cle = ftok(FICHIER_CLE,'a')) == -1)

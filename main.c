@@ -38,13 +38,16 @@ int main(int argc, char const *argv[])
     srand(time(0));
     s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
     
-
     if (argc <= 5)
     {
        erreur("Usage : <nb_serveurs> <nb_cuisiniers> <nb_term> <nb_spec> <nb_1> <nb_2> ... <nb_k>");
     }
 
-
+    if (strtol(argv[1],NULL,10) <= strtol(argv[3],NULL,10))
+    {
+        erreur("Le nombre de terminal doit être inferieur au nombre de serveur");
+    }
+     
 
     cle = ftok(FICHIER_CLE,'a');
 
@@ -57,7 +60,7 @@ int main(int argc, char const *argv[])
 
 
     
-    if((id = shmget(cle,sizeof(struct carte),0666|IPC_CREAT)) == -1)
+    if((id = shmget(cle,sizeof(struct carte),IPC_CREAT|0666)) == -1)
     {
         erreur("Erreur id = -1 ...");
     }
@@ -82,7 +85,6 @@ int main(int argc, char const *argv[])
     }
 
     cree_carte(s_carte,liste_ustencil);
-    
     s_carte->set = 0;
 
 
@@ -141,12 +143,7 @@ int main(int argc, char const *argv[])
    }
     
   
-    while (continuer)
-    {
-       
-        
-    }
-
+    
     
     
     return 0;
@@ -169,6 +166,7 @@ void arreter_processus(int signal)
         exit(-1);
         
     }  
+    system("ipcrm --all");
     printf("Signal d'arret recu ! \n");
     exit(EXIT_SUCCESS);
 }
