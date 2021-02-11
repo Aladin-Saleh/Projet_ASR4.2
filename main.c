@@ -1,5 +1,5 @@
 /*Programme réaliser par Aladin SALEH & Paul MINGUET
-**06/02/21
+**10/02/21
 **IUT Sénart Fontainebleau - Année 2
 */
 #include <stdio.h>
@@ -14,13 +14,13 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "carte_manager.h"
-#include "signal.h"
 #include "types.h"
 #include "erreur.h"
 
 int id;
 int continuer = 1;
 struct carte * s_carte;
+struct shmid_ds shmid_ds;
 void arreter_processus(int signal);//Arrete tout les processus à la réception du signal
 int set_signal_handler(int sig, void (*handler)(int));//Set le signal
 
@@ -29,7 +29,8 @@ int set_signal_handler(int sig, void (*handler)(int));//Set le signal
 int main(int argc, char const *argv[])
 {
     key_t cle;
-    
+    int ind = 0;
+
     srand(time(0));
     s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
     
@@ -47,7 +48,7 @@ int main(int argc, char const *argv[])
     {
         erreur("Erreur lors de la création de la clé...");
     }
-    printf("La a était clé crée avec succès...\n");
+    debug_succes("La a était clé crée avec succès...");
     sleep(1);//Il sert à rien ce sleep, mais je trouvais juste stylé à l'execution :) 
 
 
@@ -56,22 +57,49 @@ int main(int argc, char const *argv[])
     {
         erreur("Erreur id = -1 ...");
     }
-    printf("id de la mémoire partagée récuperer avec succès...\n");
+    debug_succes("id de la mémoire partagée récuperer avec succès...");
     sleep(1);
-  
+
+    if ((s_carte = (struct carte*)shmat(id,NULL,0)) == (void*)-1)
+    {
+        erreur("Erreur lors de la jointure du segment de mémoires...");
+    }
+    debug_succes("La jointure du segment mémoire a été faites...");
     
-    cree_carte(s_carte,argv,argc);
-    //afficher_carte(s_carte);
+    int liste_ustencil[argc-5];
+    s_carte->set = 1;
+    s_carte->nombre_ustencil = argc - 5;
+    s_carte->nombre_specialite = strtol(argv[4],0,10);
+
+    for (int i = argc - s_carte->nombre_ustencil; i < argc; i++)
+    {
+        liste_ustencil[ind]= strtol(argv[i],0,10);
+        ind++;
+    }
+
+    cree_carte(s_carte,liste_ustencil);
+    
+    s_carte->set = 0;
+
+
+
+
+
+  
 
     
     sleep(1);
-    printf("Envoi...\n");
+    debug_succes("Element envoyer !");
+    debug_succes("Création de la carte terminer !");
+
+    s_carte->test = 0;
 
    if (set_signal_handler(SIGINT,arreter_processus) != 0)
    {
        erreur("Erreur signal (set)...");
    }
     
+  
     while (continuer)
     {
        
@@ -87,7 +115,7 @@ int main(int argc, char const *argv[])
 
 void arreter_processus(int signal)
 {
-    continuer = 0;
+
     if (shmdt((char*)s_carte) == -1)
     {
         erreur("Error shmdt");
