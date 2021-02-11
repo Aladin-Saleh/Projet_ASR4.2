@@ -11,14 +11,26 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <sys/sem.h>
 #include <signal.h>
 #include <assert.h>
 #include "types.h"
+#include "erreur.h"
 #include <sys/stat.h>
 
+int id_sem;
 int file_mess_serv; 				/* ID de la file, necessairement global pour pouvoir la supprimer a la terminaison */
 key_t cleServ; 						/* cle de la file     */
+union semun u;
 
+union semun {
+    int val;
+    struct semid_ds *buf;
+    unsigned short  *array;
+};
+
+struct sembuf p = { 0, -1, SEM_UNDO};
+struct sembuf v = { 0, +1, SEM_UNDO};
 
 
 int main (int argc, char *argv[]){
@@ -35,6 +47,11 @@ int main (int argc, char *argv[]){
 
 	assert(cleServ != -1);
 
+	if ((id_sem = semget(cleServ,1,0666|IPC_CREAT)) == -1)
+	{
+		erreur("Erreur lors de la creation de la semaphore...");
+	}
+
 
 	/* Creation file de message :    */
 
@@ -43,6 +60,13 @@ int main (int argc, char *argv[]){
 	//sleep(10);
 	
 	assert( file_mess_serv != -1);
+
+	u.val = 1;
+
+	if(semctl(id_sem, 0, SETVAL, u) < 0)
+    {
+        erreur("Erreur semclt....");
+    }
 
 	while(1) { 
 
@@ -72,7 +96,7 @@ int main (int argc, char *argv[]){
 
 		/* Préparer le plat */
 
-		sleep(3);
+		sleep(rand() % 5);
 
 		
 		/* Prépare la commande du serveur */
@@ -92,7 +116,7 @@ int main (int argc, char *argv[]){
 
 		couleur(VERT);
 
-		printf("Le cuisinier %d envoie la commande du client %d au serveur %d\n", commande2Serv.expediteur, commande2Serv.client, commandeFromServ.expediteur);
+		printf("Le cuisinier %d envoie la commande du client %d au serveur %d\n", numOrdre, commande2Serv.client, commandeFromServ.expediteur);
 
 		couleur(REINIT);
 	}
