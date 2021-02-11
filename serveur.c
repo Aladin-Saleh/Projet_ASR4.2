@@ -34,7 +34,7 @@ int main (int argc, char *argv[]){
 	/* cacul de la cle de la file    */
 
 	cleCli = ftok(FICHIER_CLE,'a');
-	printf("clecli = %d\n", cleCli);
+	//printf("clecli = %d\n", cleCli);
 	cleCui = ftok(FICHIER_CLE, 'c');
 
 
@@ -46,7 +46,7 @@ int main (int argc, char *argv[]){
 
 	file_mess_cli = msgget(cleCli, 0);
 	file_mess_cui = msgget(cleCui, 0666|IPC_CREAT);
-	printf("file_mess_cli = %d, file_mess_cui = %d \n",file_mess_cli, file_mess_cui);
+	//printf("file_mess_cli = %d, file_mess_cui = %d \n",file_mess_cli, file_mess_cui);
 	//sleep(10);
 	
 	assert( file_mess_cli != -1);
@@ -54,7 +54,13 @@ int main (int argc, char *argv[]){
 
 	while(1) { 
 
+		couleur(ROUGE);
+
+		fprintf(stdout, "==---------- Nouvelle commande ----------==\n");
+
 		fprintf(stdout, "Serveur n° %d attend une commande\n", numOrdre);
+
+		couleur(REINIT);
 
 		/* serveur attend des commandes de clients, de type 1 :        */
 	 	
@@ -62,19 +68,23 @@ int main (int argc, char *argv[]){
 			perror("Erreur lors de la reception...");
 			exit(-1);
 		}
+
+		couleur(ROUGE);
 		
 		fprintf(stdout, "Serveur n° %d a reçu la commande du client %d\n", numOrdre, commande.expediteur);
 
+		couleur(REINIT);
 
 		/* traitement de la requete : */
 
-		fprintf(stdout, "numCo = %d\n", commande.choix);
+		//fprintf(stdout, "numCo = %d\n", commande.choix);
 
 		
 		/* Prépare la commande du cuisinier */
 
 		commande2Cui.type = 3;
 		commande2Cui.choix = commande.choix;
+		commande2Cui.client = commande.expediteur;
 		commande2Cui.expediteur = pid;
 
 
@@ -85,17 +95,25 @@ int main (int argc, char *argv[]){
 			exit(-1);
 		}
 
-		printf("Le serveur %d envoie la commande du client %d\n", commande2Cui.expediteur, commande2Cui.choix);
+		couleur(ROUGE);
+
+		fprintf(stdout, "Serveur n° %d envoie la commande du client %d\n", numOrdre, commande2Cui.client);
+
+		couleur(REINIT);
 
 
 		/* Attend la réponse du cuisinier */
 
-		if (msgrcv(file_mess_cui, &commandeFromCui, sizeof(commandcuiserv_t) - sizeof(long), 1, 0)== -1 ) {
+		if (msgrcv(file_mess_cui, &commandeFromCui, sizeof(commandcuiserv_t) - sizeof(long), (long) pid, 0)== -1 ) {
 			perror("Erreur lors de la reception...");
 			exit(-1);
 		}
+
+		couleur(ROUGE);
 		
 		fprintf(stdout, "Serveur n° %d a reçu le plat du cuisinier %d\n", numOrdre, commandeFromCui.expediteur);
+
+		couleur(REINIT);
 
 
 		/* Renvoie au client */
@@ -109,12 +127,46 @@ int main (int argc, char *argv[]){
 		sleep(5);
 
 
-		/* envoi de la reponse : */
+		/* envoi du prix : */
 
 		if(msgsnd(file_mess_cli,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
 			perror("Erreur lors de l'envoi de la commande ");
 			exit(-1);
 		}
+
+
+		/* attente du paiement */
+
+		if (msgrcv(file_mess_cli, &commande, sizeof(command_t) - sizeof(long), 1, 0)== -1 ) {
+			perror("Erreur lors de la reception...");
+			exit(-1);
+		}
+
+		couleur(ROUGE);
+		
+		fprintf(stdout, "Serveur n° %d a reçu le paiement du client %ld\n", numOrdre, commande2Cli.type);
+
+		couleur(REINIT);
+
+		sleep(2);
+
+
+		/* envoi de la commande */
+
+		if(msgsnd(file_mess_cli,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
+			perror("Erreur lors de l'envoi de la commande ");
+			exit(-1);
+		}
+
+		couleur(ROUGE);
+
+		fprintf(stdout, "Serveur n° %d envoie la commande au client %ld\n", numOrdre, commande2Cli.type);
+
+		printf("...\n");
+
+		couleur(REINIT);
+		
+		sleep(2);
 
 	}
 	return EXIT_SUCCESS;

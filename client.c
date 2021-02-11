@@ -18,12 +18,12 @@
 
 int main(int argc, char const *argv[]) {
 
-
 	key_t cle;			/* cle de la file     */
 	int file_mess;		/* ID de la file    */
 	command_t commande;
 	commandcliserv_t cmdRecue;
 	int nbSpe = (int) strtol((argv[1]), NULL, 0);
+	//printf("nbSpe = %d\n", nbSpe);
 
 	int choixSpe = -1;
 	int occupationServeur = -1;
@@ -36,7 +36,7 @@ int main(int argc, char const *argv[]) {
 	/* Calcul de la cle	                 */
 
 	cle = ftok(FICHIER_CLE,'a');
-	printf("cle = %d\n", cle);
+	//printf("cle = %d\n", cle);
 	assert(cle != -1);
 
 
@@ -49,6 +49,8 @@ int main(int argc, char const *argv[]) {
 	/* Séléction de la carte */
 	key_t k = ftok("/tmp",1);
 	assert(k!=-1);
+
+	srand(time(NULL));
 	
 	choixSpe = rand() % (nbSpe + 1);
 
@@ -84,15 +86,51 @@ int main(int argc, char const *argv[]) {
 		exit(-1);
 	}
 
+	couleur(CYAN);
+
 	printf("Le client %d envoie la commande %d au serveur %d\n", pid, commande.choix, commande.serveur);
 
+	couleur(REINIT);
 
-	/* attente de la reponse : */
 
-	if (msgrcv(file_mess, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), 3, 0) == -1) {	// On attend un message de type 3 (serveur)
+	/* attente de la reponse : et paie */
+
+	if (msgrcv(file_mess, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), (long) getpid(), 0) == -1) {	// On attend un message de type 3 (serveur)
 		perror("Erreur lors de la recuperation de la commande ");
 		exit(-1);
 	}
 
-	printf("Le client %d recoit la commande %d\n",pid, cmdRecue.choix);
+	couleur(CYAN);
+
+	printf("Le client %d reçoit le prix\n", pid);
+
+	couleur(REINIT);
+
+	sleep(2);
+
+	if(msgsnd(file_mess, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
+		perror("Erreur lors de l'envoi de la commande");
+		exit(-1);
+	}
+
+	couleur(CYAN);
+
+	printf("Le client %d a payé\n", pid);
+
+	couleur(REINIT);
+
+	/* attente de la commande */
+
+	if (msgrcv(file_mess, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), (long) getpid(), 0) == -1) {	// On attend un message de type 3 (serveur)
+		perror("Erreur lors de la recuperation de la commande ");
+		exit(-1);
+	}
+
+	sleep(2);
+
+	couleur(CYAN);
+
+	printf("Le client %d reçoit la commande %d\n",pid, cmdRecue.choix);
+
+	couleur(REINIT);
 }

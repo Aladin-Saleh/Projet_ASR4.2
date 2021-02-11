@@ -1,5 +1,5 @@
-main : main.o erreur.o carte_manager.o signal.o carte.o client.o serveur.o
-	gcc -o main main.o erreur.o carte_manager.o signal.o && gcc -o carte carte.o erreur.o carte_manager.o signal.o && gcc -o client client.o && gcc -o serveur serveur.o
+main : main.o erreur.o carte_manager.o signal.o carte.o client.o serveur.o cuisinier.o
+	gcc -o main main.o erreur.o carte_manager.o signal.o && gcc -o carte carte.o erreur.o carte_manager.o signal.o && gcc -o client client.o && gcc -o serveur serveur.o && gcc -o cuisinier cuisinier.o
 
 carte_manager : carte_manager.c
 	gcc -o carte_manager.o -c carte_manager.c -Wall
@@ -27,4 +27,7 @@ signal.o : signal.c
 	gcc -o signal.o -c signal.c -Wall
 
 clean :
-	rm -f client main serveur cuisinier cle.serv carte erreur *.o
+	rm -f client main serveur cuisinier cle.serv carte erreur *.o && ipcrm --all
+
+run :
+	./main 3 3 3 5 2 3 4 2 6

@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
         erreur("Erreur id = -1 ...");
     }
 
-    
+
      if((s_carte = (struct carte*)shmat(id,NULL,0)) == NULL)
     { 
         erreur("Erreur shmat (le segment n'a pas pu être associé)...");
@@ -48,11 +48,11 @@ int main(int argc, char const *argv[])
     printf("nombre d'ustencile : %d\nset : %d\n",s_carte->nombre_ustencil,s_carte->set);
     
     while(s_carte->set){
-    printf("BUF : %d \n",s_carte->buf);
-    //printf("i : %d \n",s_carte->i);
-    //printf("j : %d \n",s_carte->j);
-    array_spec[s_carte->i][s_carte->j] = s_carte->buf;
-    //sleep(1);
+        printf("BUF : %d \n",s_carte->buf);
+        //printf("i : %d \n",s_carte->i);
+        //printf("j : %d \n",s_carte->j);
+        array_spec[s_carte->i][s_carte->j] = s_carte->buf;
+        //sleep(1);
     }
     
     debug_info("Chargement de l'affichage de la carte...");

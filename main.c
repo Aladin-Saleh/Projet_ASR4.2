@@ -30,6 +30,9 @@ int main(int argc, char const *argv[])
 {
     key_t cle;
     int ind = 0;
+    int nbServ = (int) strtol((argv[1]), NULL, 0);
+    int nbCui = (int) strtol((argv[2]), NULL, 0);
+    char buffer[10];
 
     srand(time(0));
     s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
@@ -82,7 +85,42 @@ int main(int argc, char const *argv[])
     s_carte->set = 0;
 
 
+    for (int i = 0; i < 5; i++) {
+        pid_t p = fork();
+        assert( p != -1);
 
+        if (p==0) {
+            snprintf(buffer, sizeof(buffer), "%d", s_carte->nombre_specialite);
+            execl("./client", "./client", buffer, NULL);
+            assert(0);
+        }
+    }
+
+    printf("Les clients ont été créés\n");
+
+    for (int i = 0; i < nbServ; i++) {
+        pid_t p = fork();
+        assert( p != -1);
+
+        if (p==0) {
+            execl("./serveur", "./serveur", "1", NULL);
+            assert(0);
+        }
+    }
+
+    printf("Les serveurs ont été créés\n");
+
+    for (int i = 0; i < nbCui; i++) {
+        pid_t p = fork();
+        assert( p != -1);
+
+        if (p==0) {
+            execl("./cuisinier", "./cuisinier", "1", NULL);
+            assert(0);
+        }
+    }
+
+    printf("Les cuisiniers ont été créés\n");
 
 
   
