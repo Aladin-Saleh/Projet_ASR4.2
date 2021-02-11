@@ -104,7 +104,8 @@ int main(int argc, char const *argv[])
         assert( p != -1);
 
         if (p==0) {
-            execl("./serveur", "./serveur", "1", NULL);
+            snprintf(buffer, sizeof(buffer), "%d", i);
+            execl("./serveur", "./serveur", buffer, NULL);
             assert(0);
         }
     }
@@ -116,7 +117,8 @@ int main(int argc, char const *argv[])
         assert( p != -1);
 
         if (p==0) {
-            execl("./cuisinier", "./cuisinier", "1", NULL);
+            snprintf(buffer, sizeof(buffer), "%d", i);
+            execl("./cuisinier", "./cuisinier", buffer, NULL);
             assert(0);
         }
     }
