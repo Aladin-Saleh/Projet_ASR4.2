@@ -58,7 +58,7 @@ int main (int argc, char *argv[]){
 
 		/* serveur attend des commandes de clients, de type 1 :        */
 	 	
-		if (msgrcv(file_mess_cli, &commande, sizeof(command_t) - sizeof(int), 1, 0)== -1 ) {
+		if (msgrcv(file_mess_cli, &commande, sizeof(command_t) - sizeof(long), 1, 0)== -1 ) {
 			perror("Erreur lors de la reception...");
 			exit(-1);
 		}
@@ -80,7 +80,7 @@ int main (int argc, char *argv[]){
 
 		/* Envoie la commande au cuisinier */
 
-		if(msgsnd(file_mess_cui, &commande2Cui, sizeof(commandcuiserv_t) - sizeof(int), IPC_NOWAIT) == -1) {
+		if(msgsnd(file_mess_cui, &commande2Cui, sizeof(commandcuiserv_t) - sizeof(long), IPC_NOWAIT) == -1) {
 			perror("Erreur lors de l'envoi de la commande ");
 			exit(-1);
 		}
@@ -90,7 +90,7 @@ int main (int argc, char *argv[]){
 
 		/* Attend la réponse du cuisinier */
 
-		if (msgrcv(file_mess_cui, &commandeFromCui, sizeof(commandcuiserv_t) - sizeof(int), 1, 0)== -1 ) {
+		if (msgrcv(file_mess_cui, &commandeFromCui, sizeof(commandcuiserv_t) - sizeof(long), 1, 0)== -1 ) {
 			perror("Erreur lors de la reception...");
 			exit(-1);
 		}
@@ -111,7 +111,7 @@ int main (int argc, char *argv[]){
 
 		/* envoi de la reponse : */
 
-		if(msgsnd(file_mess_cli,&commande2Cli, sizeof(commandcliserv_t) - sizeof(int),IPC_NOWAIT) == -1) {
+		if(msgsnd(file_mess_cli,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
 			perror("Erreur lors de l'envoi de la commande ");
 			exit(-1);
 		}
