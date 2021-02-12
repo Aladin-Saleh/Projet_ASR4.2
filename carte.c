@@ -22,8 +22,7 @@ int num_spe;
 int main(int argc, char const *argv[])
 {
     key_t cle;
-    int id,id_from_cuisinier;
-    int array_spec[100][100];
+    int id;
     //int **buf;
     struct carte* s_carte;
     if ((cle = ftok(FICHIER_CLE,'a')) == -1)
@@ -45,7 +44,7 @@ int main(int argc, char const *argv[])
     
     sleep(1);
     printf("nombre de spécialité : %d\n",s_carte->nombre_specialite);
-    printf("nombre d'ustencile : %d\nset : %d\n",s_carte->nombre_ustencil);
+    printf("nombre d'ustencile : %d\n",s_carte->nombre_ustencil);
     
   
     debug_info("Chargement de l'affichage de la carte...");

@@ -1,5 +1,5 @@
 /*Programme réaliser par Aladin SALEH & Paul MINGUET
-**10/02/21
+**12/02/21
 **IUT Sénart Fontainebleau - Année 2
 */
 #include <stdio.h>
@@ -26,12 +26,6 @@ void cree_carte(struct carte* s_carte,int* liste_ustencil)
    {
        for (int j = 0; j <= s_carte->nombre_ustencil; j++)
        {
-            //s_carte->buf = rand()%liste_ustencil[s_carte->j];
-            //printf("Main[%d][%d] : %d\n",i,j,s_carte->buf);
-            //s_carte->i = i;
-            //s_carte->j = j;
-            //sleep(1);
-
             s_carte->spec_usten[i][j] = rand()%liste_ustencil[j];
        }
        
@@ -62,9 +56,10 @@ void afficher_carte(struct carte* s_carte)
 void cuisinier_prepare_specialite(struct carte* s_carte,int num_spe)
 {
     printf("Le cuisinier prepare une spécialité...\nIl prend la spécialité %d\n",num_spe);
+    
     for (int i = 0; i < s_carte->nombre_ustencil; i++)
     {
-       printf("necessite %d ustencile %d \n",s_carte,s_carte->spec_usten[num_spe][i],i);
+       printf("necessite %d ustencile %d \n",s_carte->spec_usten[num_spe][i],i);
     }
     sleep(2);
 

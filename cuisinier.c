@@ -70,9 +70,6 @@ int main (int argc, char *argv[]){
 	}
 
 
-	
-
-
 	assert( file_mess_serv != -1);
 	u.val = 1;
 
@@ -103,24 +100,20 @@ int main (int argc, char *argv[]){
 		printf("\t\tCuisinier n°%d est en train de préparer la spécialité n°%d \n",pid,commandeFromServ.choix);
 		printf("\t\tPréparation en cours par le cuisinier n°%d...\n",pid);
 		cuisinier_prepare_specialite(s_carte,commandeFromServ.choix);
-		sleep(rand() % 5);
+		//sleep(rand() % 5);
 
-		s_carte = get_carte_shmget(cle_serv,sizeof(struct carte));
+		/*s_carte = get_carte_shmget(cle_serv,sizeof(struct carte));
 		for (int i = 0; i < s_carte->nombre_ustencil; i++)
 		{
 			semop(id_sem,&p,1);
 			s_carte->spec_usten[commandeFromServ.choix][i];
-		}
+		}*/
 		
-
 		///fprintf(stdout, "numCo = %d\n", commandeFromServ.choix);
 
-       
 		/* Préparer le plat */
 		couleur(REINIT);
 
-
-		
 		/* Prépare la commande du serveur */
 
 		commande2Serv.type = commandeFromServ.expediteur;

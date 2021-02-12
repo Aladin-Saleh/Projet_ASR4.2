@@ -26,12 +26,12 @@ int *file_mess;
 int nbServ;
 int id_sem;
 struct carte * s_carte;
-struct shmid_ds shmid_ds;
 void arreter_processus(int signal);//Arrete tout les processus à la réception du signal
 int set_signal_handler(int sig, void (*handler)(int));//Set le signal
 
-struct sembuf p[] = {{ 0, -1, SEM_UNDO}};
-struct sembuf v[] = {{ 0, +1, SEM_UNDO}};
+//struct sembuf p[] = {{ 0, -1, SEM_UNDO}};
+//struct sembuf v[] = {{ 0, +1, SEM_UNDO}};
+
 
 
 
@@ -46,9 +46,11 @@ int main(int argc, char const *argv[])
     char *fichierCle;
     char cleVal = 'b';
     char *tmp = NULL;
-    int shmid;
     char buffer[10];
 
+
+    struct sembuf ustensil[] = {{argc - 5,-1,0}, {argc - 5,+1,0}  };
+    
     //s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
     
     if (argc <= 5)
@@ -119,9 +121,6 @@ int main(int argc, char const *argv[])
    
 
     sleep(5);    
-
-    shmid=shmget(k, sizeof(int), IPC_CREAT|0666);
-    assert(shmid >= 0);
 
     system("touch cle.serv");
 
