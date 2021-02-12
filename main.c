@@ -22,6 +22,9 @@
 
 int id;
 int continuer = 1;
+int *file_mess;
+int nbServ;
+int id_sem;
 struct carte * s_carte;
 struct shmid_ds shmid_ds;
 void arreter_processus(int signal);//Arrete tout les processus à la réception du signal
@@ -37,10 +40,9 @@ int main(int argc, char const *argv[])
 {
     key_t cle;
     int ind = 0;
-    int nbServ = (int) strtol((argv[1]), NULL, 0);
+    nbServ = (int) strtol((argv[1]), NULL, 0);
     int nbCui = (int) strtol((argv[2]), NULL, 0);
     //int nbTerm = (int) strtol((argv[3]), NULL, 0);
-    int *file_mess;
     char *fichierCle;
     char cleVal = 'b';
     char *tmp = NULL;
@@ -80,6 +82,11 @@ int main(int argc, char const *argv[])
         erreur("Erreur lors de la jointure du segment de mémoires...");
     }
     debug_succes("La jointure du segment mémoire a été faites...");
+
+    if ((id_sem = semget(cle,1,0666|IPC_CREAT)) == -1)
+    {
+        erreur("Erreur lors de la creation de la semaphore...");
+    }
     
     int liste_ustencil[argc-5];
     s_carte->nombre_ustencil = argc - 5;
@@ -202,7 +209,17 @@ void arreter_processus(int signal)
         exit(-1);
         
     }
-    system("ipcrm --all");
+    
+    for(int i = 0; i <= nbServ; i++) {
+        if (msgctl(file_mess[i], IPC_RMID, NULL) == -1) {
+            erreur("Error shmclt : lors de la suppression des files");
+            exit(-1);
+        }
+    }
+
+    if(semctl(id_sem, IPC_RMID, 0) == -1) {
+        
+    }
     printf("Signal d'arret recu ! \n");
     exit(EXIT_SUCCESS);
 }
