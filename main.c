@@ -165,11 +165,14 @@ int main(int argc, char const *argv[])
 
     s_carte->test = 0;
 
-   if (set_signal_handler(SIGINT,arreter_processus) != 0)
-   {
-       erreur("Erreur signal (set)...");
-   }
-    
+    while(1) {
+
+        if (set_signal_handler(SIGINT,arreter_processus) != 0)
+        {
+            erreur("Erreur signal (set)...");
+        }
+        break;
+    }
   
     
     
@@ -193,7 +196,7 @@ void arreter_processus(int signal)
         erreur("Error shmclt : lors de la suppression du segment mémoire");
         exit(-1);
         
-    }  
+    }
     system("ipcrm --all");
     printf("Signal d'arret recu ! \n");
     exit(EXIT_SUCCESS);
