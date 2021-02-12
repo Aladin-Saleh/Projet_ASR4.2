@@ -30,4 +30,4 @@ clean :
 	rm -f client main serveur cuisinier cle.serv carte erreur *.o *.serv && ipcrm --all
 
 gitrm :
-	git rm client && git rm main && git rm serveur && git rm cuisinier && git rm cle.serv && git rm carte && git rm erreur && git rm *.o && git rm *.serv
+	git rm client && git rm *.o && git rm main && git rm serveur && git rm cuisinier && git rm carte && git rm erreur && git rm *.serv && git rm cle.serv
