@@ -26,14 +26,17 @@ void cree_carte(struct carte* s_carte,int* liste_ustencil)
    {
        for (int j = 0; j <= s_carte->nombre_ustencil; j++)
        {
-            s_carte->buf = rand()%liste_ustencil[s_carte->j];
+            //s_carte->buf = rand()%liste_ustencil[s_carte->j];
             //printf("Main[%d][%d] : %d\n",i,j,s_carte->buf);
-            s_carte->i = i;
-            s_carte->j = j;
+            //s_carte->i = i;
+            //s_carte->j = j;
             //sleep(1);
+
+            s_carte->spec_usten[i][j] = rand()%liste_ustencil[j];
        }
        
    }
+
 
   
 }
@@ -41,16 +44,28 @@ void cree_carte(struct carte* s_carte,int* liste_ustencil)
 /*Cette fonction permet l'affichage de la carte
 * Il est important que la carte soit deja crée avant l'affichage (logique ¯\_(ツ)_/¯)
 */
-void afficher_carte(struct carte* s_carte,int array_spec[100][100])
+void afficher_carte(struct carte* s_carte)
 {   
      for (int i = 0; i < s_carte->nombre_specialite; i++)
     {
         printf("Spécialité n°%d a besoin de : ",i+1);
         for (int j = 0; j < s_carte->nombre_ustencil; j++)
         {
-            printf("ustencile n°%d = %d |",j+1,array_spec[i][j]);
+            printf("ustencile n°%d = %d |",j+1,s_carte->spec_usten[i][j]);
         }
         printf("\n");
         
     }
+}
+
+
+void cuisinier_prepare_specialite(struct carte* s_carte,int num_spe)
+{
+    printf("Le cuisinier prepare une spécialité...\nIl prend la spécialité %d\n",num_spe);
+    for (int i = 0; i < s_carte->nombre_ustencil; i++)
+    {
+       printf("necessite %d ustencile %d \n",s_carte,s_carte->spec_usten[num_spe][i],i);
+    }
+    sleep(2);
+
 }

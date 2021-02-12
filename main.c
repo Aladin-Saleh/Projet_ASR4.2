@@ -13,6 +13,7 @@
 #include <sys/msg.h>
 #include <assert.h>
 #include <time.h>
+#include <sys/sem.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "./Header/carte_manager.h"
@@ -25,6 +26,10 @@ struct carte * s_carte;
 struct shmid_ds shmid_ds;
 void arreter_processus(int signal);//Arrete tout les processus à la réception du signal
 int set_signal_handler(int sig, void (*handler)(int));//Set le signal
+
+struct sembuf p[] = {{ 0, -1, SEM_UNDO}};
+struct sembuf v[] = {{ 0, +1, SEM_UNDO}};
+
 
 
 //argument nb_serveurs nb_cuisiniers nb_term nb_spec nb_1 nb_2 ... nb_k
@@ -77,7 +82,6 @@ int main(int argc, char const *argv[])
     debug_succes("La jointure du segment mémoire a été faites...");
     
     int liste_ustencil[argc-5];
-    s_carte->set = 1;
     s_carte->nombre_ustencil = argc - 5;
     s_carte->nombre_specialite = strtol(argv[4],0,10);
 
@@ -88,7 +92,7 @@ int main(int argc, char const *argv[])
     }
 
     cree_carte(s_carte,liste_ustencil);
-    s_carte->set = 0;
+    sleep(4);
 
     key_t k = ftok("/tmp",1);
     assert(k!=-1);
@@ -101,10 +105,11 @@ int main(int argc, char const *argv[])
         assert( p != -1);
 
         if (p==0) {
-            		execl("./carte","./carte",0,0);
+            		execl("./carte","./carte",NULL,NULL);
 
             assert(0);
         }
+   
 
     sleep(5);    
 

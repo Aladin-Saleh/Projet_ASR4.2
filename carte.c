@@ -45,27 +45,16 @@ int main(int argc, char const *argv[])
     
     sleep(1);
     printf("nombre de spécialité : %d\n",s_carte->nombre_specialite);
-    printf("nombre d'ustencile : %d\nset : %d\n",s_carte->nombre_ustencil,s_carte->set);
+    printf("nombre d'ustencile : %d\nset : %d\n",s_carte->nombre_ustencil);
     
-    while(s_carte->set){
-        //printf("BUF : %d \n",s_carte->buf);
-        //printf("i : %d \n",s_carte->i);
-        //printf("j : %d \n",s_carte->j);
-        array_spec[s_carte->i][s_carte->j] = s_carte->buf;
-        //sleep(1);
-    }
-    //afficher_carte(s_carte,array_spec);
+  
     debug_info("Chargement de l'affichage de la carte...");
     sleep(3);
-    afficher_carte(s_carte,array_spec);
+    afficher_carte(s_carte);
     couleur(BLANC);
-    /*printf("Le cuisinier prepare une spécialité...\nIl prend la spécialité %d\n",num_spe);
-    for (int i = 0; i < s_carte->nombre_ustencil; i++)
-    {
-       printf("necessite %d ustencile %d \n",array_spec[num_spe][i],i);
-    }
-    sleep(2);
-    num_spe = 0;*/
+
+
+
 
     
 

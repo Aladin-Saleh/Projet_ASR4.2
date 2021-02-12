@@ -17,15 +17,16 @@
 #include <assert.h>
 #include "./Header/types.h"
 #include "./Header/erreur.h"
+#include "./Header/carte_manager.h"
 #include <sys/stat.h>
 
-
+struct carte * get_carte_shmget(key_t k,int size);
 
 int id_sem,id_shm;
 int file_mess_serv; 				/* ID de la file, necessairement global pour pouvoir la supprimer a la terminaison */
 key_t cle_serv; 						/* cle de la file     */
 union semun u;
-
+key_t cle;
 union semun {
     int val;
     struct semid_ds *buf;
@@ -34,14 +35,14 @@ union semun {
 
 struct sembuf p = { 0, -1, SEM_UNDO};
 struct sembuf v = { 0, +1, SEM_UNDO};
-
+struct carte* s_carte;
+int array_spec[100][100];
 
 int main (int argc, char *argv[]){
 	couleur(VERT);
 	commandcuiserv_t commande2Serv, commandeFromServ;
 	//int num_ordre = (int) strtol(argv[1], NULL, 0);
 	pid_t pid = getpid();
-	int *num_spe;
 
 
 	/* cacul de la cle de la file    */
@@ -56,8 +57,7 @@ int main (int argc, char *argv[]){
 		erreur("Erreur lors de la creation de la semaphore...");
 	}
 
-
-
+	
 	/* Creation file de message :    */
 
 	file_mess_serv = msgget(cle_serv, 0);
@@ -74,7 +74,6 @@ int main (int argc, char *argv[]){
 
 
 	assert( file_mess_serv != -1);
-	*num_spe = commandeFromServ.choix;
 	u.val = 1;
 
 	if(semctl(id_sem, 0, SETVAL, u) < 0)
@@ -103,8 +102,16 @@ int main (int argc, char *argv[]){
 		/* traitement de la requete : */
 		printf("\t\tCuisinier n°%d est en train de préparer la spécialité n°%d \n",pid,commandeFromServ.choix);
 		printf("\t\tPréparation en cours par le cuisinier n°%d...\n",pid);
+		cuisinier_prepare_specialite(s_carte,commandeFromServ.choix);
 		sleep(rand() % 5);
 
+		s_carte = get_carte_shmget(cle_serv,sizeof(struct carte));
+		for (int i = 0; i < s_carte->nombre_ustencil; i++)
+		{
+			semop(id_sem,&p,1);
+			s_carte->spec_usten[commandeFromServ.choix][i];
+		}
+		
 
 		///fprintf(stdout, "numCo = %d\n", commandeFromServ.choix);
 
@@ -136,4 +143,13 @@ int main (int argc, char *argv[]){
 		couleur(REINIT);
 	}
 	return EXIT_SUCCESS;
+}
+
+
+
+struct carte * get_carte_shmget(key_t k,int size)
+{
+    int carte_memoire_partage_id = shmget(k, size, 0);
+    assert(carte_memoire_partage_id >= 0);
+    return (struct carte*)shmat(carte_memoire_partage_id,NULL,0);
 }
