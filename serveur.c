@@ -18,8 +18,8 @@
 
 
 
-int file_mess_cli, file_mess_cui; 	/* ID de la file, necessairement global pour pouvoir la supprimer a la terminaison */
-key_t cleCli, cleCui; 				/* cle de la file     */
+int file_mess_cui, pls_lng_file, file_mess; 	/* ID de la file, necessairement global pour pouvoir la supprimer a la terminaison */
+key_t cleCui, cle; 				/* cle de la file     */
 
 
 
@@ -27,30 +27,52 @@ int main (int argc, char *argv[]){
 	command_t commande;
 	commandcuiserv_t commande2Cui, commandeFromCui;
 	commandcliserv_t commande2Cli;
+	struct msqid_ds buff, buf;
+	int sortie = 0;
+	char cleVal = 'b';
+	char *tmp = NULL;
 	//int numOrdre = (int) strtol(argv[1], NULL, 0);
 	pid_t pid = getpid();
 
 
 	/* cacul de la cle de la file    */
 
-	cleCli = ftok(FICHIER_CLE,'a');
-	//printf("clecli = %d\n", cleCli);
-	cleCui = ftok(FICHIER_CLE, 'c');
+	cleCui = ftok(FICHIER_CLE, 'a');
 
 
-	assert(cleCli != -1);
 	assert(cleCui != -1);
 
 
-	/* Creation file de message :    */
-
-	file_mess_cli = msgget(cleCli, 0);
 	file_mess_cui = msgget(cleCui, 0666|IPC_CREAT);
-	//printf("file_mess_cli = %d, file_mess_cui = %d \n",file_mess_cli, file_mess_cui);
-	//sleep(10);
 	
-	assert( file_mess_cli != -1);
 	assert( file_mess_cui != -1);
+
+	tmp = (char *)malloc((4 + 20) * sizeof(char));
+	sprintf(tmp, "t%c.serv", cleVal);
+	cle = ftok(tmp, cleVal);
+
+	/* Recuperation file de message :    */
+
+	pls_lng_file = msgget(cle, 0);
+	assert(pls_lng_file != -1);
+
+	/* Séléction du serveur le moins occupé */
+
+	while(sortie != 1) {
+		sprintf(tmp, "t%c.serv", cleVal);
+		cle = ftok(tmp, cleVal);
+		if(cle == -1) {
+			file_mess = pls_lng_file;
+			sortie = 1;
+		}
+		file_mess = msgget(cle, 0);
+		msgctl(file_mess, IPC_STAT, &buf);
+		msgctl(pls_lng_file, IPC_STAT, &buff);
+
+		if(buff.msg_qnum < buf.msg_qnum)
+			pls_lng_file = file_mess;
+		cleVal++;
+	}
 
 	while(1) { 
 
@@ -62,7 +84,7 @@ int main (int argc, char *argv[]){
 
 		/* serveur attend des commandes de clients, de type 1 :        */
 	 	
-		if (msgrcv(file_mess_cli, &commande, sizeof(command_t) - sizeof(long), 1, 0)== -1 ) {
+		if (msgrcv(pls_lng_file, &commande, sizeof(command_t) - sizeof(long), 1, 0)== -1 ) {
 			perror("Erreur lors de la reception...");
 			exit(-1);
 		}
@@ -126,15 +148,15 @@ int main (int argc, char *argv[]){
 
 		/* envoi du prix : */
 
-		if(msgsnd(file_mess_cli,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
+		/*if(msgsnd(pls_lng_file,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
 			perror("Erreur lors de l'envoi de la commande ");
 			exit(-1);
-		}
+		}*/
 
 
 		/* attente du paiement */
 
-		if (msgrcv(file_mess_cli, &commande, sizeof(command_t) - sizeof(long), 1, 0)== -1 ) {
+		/*if (msgrcv(pls_lng_file, &commande, sizeof(command_t) - sizeof(long), 1, 0)== -1 ) {
 			perror("Erreur lors de la reception...");
 			exit(-1);
 		}
@@ -143,13 +165,13 @@ int main (int argc, char *argv[]){
 		
 		fprintf(stdout, "Serveur n° %d a reçu le paiement du client %ld\n", pid, commande2Cli.type);
 
-		couleur(REINIT);
+		couleur(REINIT);*/
 
 
 
 		/* envoi de la commande */
 
-		if(msgsnd(file_mess_cli,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
+		if(msgsnd(pls_lng_file,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
 			perror("Erreur lors de l'envoi de la commande ");
 			exit(-1);
 		}

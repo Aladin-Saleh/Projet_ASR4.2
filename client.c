@@ -20,102 +20,87 @@
 int main(int argc, char const *argv[]) {
 
 	key_t cle;			/* cle de la file     */
-	int file_mess;		/* ID de la file    */
+	int file_mess, pls_crt_file;		/* ID de la file    */
+	struct msqid_ds buff, buf;
 	command_t commande;
 	commandcliserv_t cmdRecue;
 	int nbSpe = (int) strtol((argv[1]), NULL, 0);
-	//printf("nbSpe = %d\n", nbSpe);
-	int *nbServeurs, shmid;
-
+	int sortie = 0;
+	char cleVal = 'b';
+	char *tmp = NULL;
 	int choixSpe = -1;
-	int occupationServeur = -1;
-	int plusCourtServ = -1;
-	int taillePlusCourtServ = 99; 	// On initialise le serveur le plus occupé 
-	int serveurs[10];					// Tableau contenant les numéros d'ordre des serveurs
 	pid_t pid = getpid();
 
-
-	/* Calcul de la cle	                 */
-
-	cle = ftok(FICHIER_CLE,'a');
-	//printf("cle = %d\n", cle);
-	assert(cle != -1);
-
+	tmp = (char *)malloc((4 + 20) * sizeof(char));
+	sprintf(tmp, "t%c.serv", cleVal);
+	cle = ftok(tmp, cleVal);
 
 	/* Recuperation file de message :    */
 
-	file_mess = msgget(cle, 0666 | IPC_CREAT);
-	assert(file_mess != -1);
+	pls_crt_file = msgget(cle, 0);
+	assert(pls_crt_file != -1);
 
+	/* Séléction du serveur le moins occupé */
 
-	/* Séléction de la carte */
-	key_t k = ftok("/tmp",1);
-	assert(k!=-1);
+	while(sortie != 1) {
+		sprintf(tmp, "t%c.serv", cleVal);
+		cle = ftok(tmp, cleVal);
+		if(cle == -1) {
+			file_mess = pls_crt_file;
+			sortie = 1;
+		}
+		file_mess = msgget(cle, 0);
+		msgctl(file_mess, IPC_STAT, &buf);
+		msgctl(pls_crt_file, IPC_STAT, &buff);
 
-	shmid=shmget(k, 0, 0);
-	assert(shmid >= 0);
+		if(buff.msg_qnum > buf.msg_qnum)
+			pls_crt_file = file_mess;
+		cleVal++;
+	}
 
-	nbServeurs = (int*)shmat(shmid,NULL,0);
-	assert(nbServeurs != (void *)-1);
+	/* Choix de la spécialité */
 
 	srand(time(NULL));
 	
 	choixSpe = rand() % (nbSpe + 1);
 
-	/* Selection du serveur le moins occupé */
-
-	for(int i = 0; i < *nbServeurs; i++) {
-
-		/************************************************************** PAS ENCORE DE RECUP DES SERVEURS **************************************************************/
-
-		//occupationServeur = msg_qnum(serveurs[i]);		// récupère la taille de la file du serveur
-		if(occupationServeur < taillePlusCourtServ) {	// Si le serveur actuel a une occupation plus courte que le moins occupé
-
-			taillePlusCourtServ = occupationServeur;	// On met à jour la plus petite taille
-			plusCourtServ = serveurs[i];				// Il devient le moins occupé
-
-		}
-
-	}
-
 
 	/* creation de la requete : */
 
 	commande.type = 1;
-	commande.serveur = plusCourtServ;
 	commande.choix = choixSpe;
 	commande.expediteur = getpid();
 
 
 	/* Envoie la commande au serveur */
 
-	if(msgsnd(file_mess, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
+	if(msgsnd(pls_crt_file, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
 		perror("Erreur lors de l'envoi de la commande ");
 		exit(-1);
 	}
 
 	couleur(CYAN);
 
-	printf("Le client %d envoie la commande %d au serveur %d\n", pid, commande.choix, commande.serveur);
+	printf("Le client %d envoie la commande %d\n", pid, commande.choix);
 
 	couleur(REINIT);
 
 
 	/* attente de la reponse : et paie */
 
-	if (msgrcv(file_mess, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), (long) getpid(), 0) == -1) {	// On attend un message de type 3 (serveur)
+	if (msgrcv(pls_crt_file, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), (long) getpid(), 0) == -1) {	// On attend un message de type 3 (serveur)
 		perror("Erreur lors de la recuperation de la commande ");
 		exit(-1);
 	}
 
 	couleur(CYAN);
 
-	printf("Le client %d reçoit le prix\n", pid);
+	printf("Le client %d paye\n", pid);
 
 	couleur(REINIT);
 
 
-	if(msgsnd(file_mess, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
+	/*if(msgsnd(pls_crt_file, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
 		perror("Erreur lors de l'envoi de la commande");
 		exit(-1);
 	}
@@ -124,14 +109,14 @@ int main(int argc, char const *argv[]) {
 
 	printf("Le client %d a payé\n", pid);
 
-	couleur(REINIT);
+	couleur(REINIT);*/
 
 	/* attente de la commande */
 
-	if (msgrcv(file_mess, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), (long) getpid(), 0) == -1) {	// On attend un message de type 3 (serveur)
+	/*if (msgrcv(pls_crt_file, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), (long) getpid(), 0) == -1) {	// On attend un message de type 3 (serveur)
 		perror("Erreur lors de la recuperation de la commande ");
 		exit(-1);
-	}
+	}*/
 
 
 	couleur(CYAN);

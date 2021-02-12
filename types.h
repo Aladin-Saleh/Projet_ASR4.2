@@ -1,6 +1,5 @@
 typedef struct {
 	long type;	//1 pour client, 2 pour cuisinier
-	int serveur;
 	int choix;
 	pid_t expediteur;
 } 

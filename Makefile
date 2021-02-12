@@ -27,4 +27,4 @@ signal.o : signal.c
 	gcc -o signal.o -c signal.c -Wall
 
 clean :
-	rm -f client main serveur cuisinier cle.serv carte erreur *.o && ipcrm --all
+	rm -f client main serveur cuisinier cle.serv carte erreur *.o *.serv && ipcrm --all

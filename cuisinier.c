@@ -22,18 +22,6 @@ int id_sem;
 int file_mess_serv; 				/* ID de la file, necessairement global pour pouvoir la supprimer a la terminaison */
 key_t cleServ; 						/* cle de la file     */
 union semun u;
-<<<<<<< HEAD
-
-union semun {
-    int val;
-    struct semid_ds *buf;
-    unsigned short  *array;
-};
-
-struct sembuf p = { 0, -1, SEM_UNDO};
-struct sembuf v = { 0, +1, SEM_UNDO};
-=======
->>>>>>> d104080554abba97211d1fbeeda7708f2d02dd2e
 
 union semun {
     int val;
@@ -54,7 +42,7 @@ int main (int argc, char *argv[]){
 
 	/* cacul de la cle de la file    */
 
-	cleServ = ftok(FICHIER_CLE, 'c');
+	cleServ = ftok(FICHIER_CLE, 'a');
 
 
 	assert(cleServ != -1);
@@ -78,10 +66,6 @@ int main (int argc, char *argv[]){
 	
 	assert( file_mess_serv != -1);
 
-<<<<<<< HEAD
-
-=======
->>>>>>> d104080554abba97211d1fbeeda7708f2d02dd2e
 	u.val = 1;
 
 	if(semctl(id_sem, 0, SETVAL, u) < 0)

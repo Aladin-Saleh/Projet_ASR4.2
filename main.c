@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/msg.h>
 #include <assert.h>
 #include <time.h>
 #include <sys/types.h>
@@ -33,7 +34,12 @@ int main(int argc, char const *argv[])
     int ind = 0;
     int nbServ = (int) strtol((argv[1]), NULL, 0);
     int nbCui = (int) strtol((argv[2]), NULL, 0);
-    int *nbServeurs, shmid;
+    //int nbTerm = (int) strtol((argv[3]), NULL, 0);
+    int *file_mess;
+    char *fichierCle;
+    char cleVal = 'b';
+    char *tmp = NULL;
+    int shmid;
     char buffer[10];
 
     srand(time(0));
@@ -48,12 +54,6 @@ int main(int argc, char const *argv[])
     {
         erreur("Le nombre de terminal doit être inferieur au nombre de serveur");
     }
-<<<<<<< HEAD
-     
-=======
-
-
->>>>>>> d104080554abba97211d1fbeeda7708f2d02dd2e
 
     cle = ftok(FICHIER_CLE,'a');
 
@@ -61,10 +61,8 @@ int main(int argc, char const *argv[])
     {
         erreur("Erreur lors de la création de la clé...");
     }
-    debug_succes("La a était clé crée avec succès...");
+    debug_succes("La clé a été créée avec succès...");
     sleep(1);//Il sert à rien ce sleep, mais je trouvais juste stylé à l'execution :) 
-
-
     
     if((id = shmget(cle,sizeof(struct carte),IPC_CREAT|0666)) == -1)
     {
@@ -99,10 +97,23 @@ int main(int argc, char const *argv[])
     shmid=shmget(k, sizeof(int), IPC_CREAT|0666);
     assert(shmid >= 0);
 
-    nbServeurs = (int*)shmat(shmid,NULL,0);
-    assert(nbServeurs != (void *)-1);
+    system("touch cle.serv");
 
-    *nbServeurs = nbServ;
+    file_mess = (int *)malloc((nbServ+1) * sizeof(int));
+    fichierCle = (char * )malloc((nbServ+1) * sizeof(char));
+    tmp = (char *)malloc((nbServ+1) * sizeof(char));
+
+    file_mess[0] = msgget(cle, IPC_CREAT | 0666);
+
+    for(int i = 1; i <= nbServ; i++) {
+        sprintf(fichierCle, "t%c.serv", cleVal);
+        sprintf(tmp, "touch t%c.serv", cleVal);
+        system(tmp);
+        cle = ftok(fichierCle, cleVal);
+        file_mess[i] = msgget(cle, IPC_CREAT | 0666);
+        cleVal++;
+    }
+
 
 
     for (int i = 1; i <= 5; i++) {
