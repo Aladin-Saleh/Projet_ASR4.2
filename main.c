@@ -50,7 +50,7 @@ int main(int argc, char const *argv[])
 
 
     struct sembuf ustensil[] = {{argc - 5,-1,0}, {argc - 5,+1,0}  };
-    
+
     //s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
     
     if (argc <= 5)
@@ -101,7 +101,7 @@ int main(int argc, char const *argv[])
     }
 
     cree_carte(s_carte,liste_ustencil);
-    sleep(4);
+    sleep(2);
 
     key_t k = ftok("/tmp",1);
     assert(k!=-1);
@@ -178,7 +178,7 @@ int main(int argc, char const *argv[])
             assert(0);
         }
     }
-
+    
     printf("Les cuisiniers ont été créés\n");
 
     if (set_signal_handler(SIGINT,arreter_processus) != 0)

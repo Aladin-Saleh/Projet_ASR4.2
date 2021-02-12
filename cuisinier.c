@@ -97,10 +97,15 @@ int main (int argc, char *argv[]){
 		fprintf(stdout, "\t\tCuisinier n° %d a reçu la commande du serveur %d pour le client %d\n", pid, commandeFromServ.expediteur, commandeFromServ.client);
 
 		/* traitement de la requete : */
+		//cuisinier_prepare_specialite(s_carte,commandeFromServ.choix);
 		printf("\t\tCuisinier n°%d est en train de préparer la spécialité n°%d \n",pid,commandeFromServ.choix);
 		printf("\t\tPréparation en cours par le cuisinier n°%d...\n",pid);
-		cuisinier_prepare_specialite(s_carte,commandeFromServ.choix);
-		//sleep(rand() % 5);
+		
+
+		
+		
+
+		sleep(rand() % 5);
 
 		/*s_carte = get_carte_shmget(cle_serv,sizeof(struct carte));
 		for (int i = 0; i < s_carte->nombre_ustencil; i++)
