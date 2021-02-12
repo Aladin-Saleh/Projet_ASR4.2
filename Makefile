@@ -29,5 +29,8 @@ signal.o : signal.c
 clean :
 	rm -f client main serveur cuisinier cle.serv carte erreur *.o *.serv && ipcrm --all
 
+git : 
+	git add * && git commit -m "gitpush" && git push
+
 gitrm :
 	git rm client *.o main serveur cuisinier carte *.serv && git commit -m "rm" && git push
