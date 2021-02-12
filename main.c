@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
     int shmid;
     char buffer[10];
 
-    s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
+    //s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
     
     if (argc <= 5)
     {
@@ -96,6 +96,17 @@ int main(int argc, char const *argv[])
     sleep(1);
     debug_succes("Element envoyer !");
     debug_succes("Création de la carte terminer !");
+
+       pid_t p = fork();
+        assert( p != -1);
+
+        if (p==0) {
+            		execl("./carte","./carte",0,0);
+
+            assert(0);
+        }
+
+    sleep(5);    
 
     shmid=shmget(k, sizeof(int), IPC_CREAT|0666);
     assert(shmid >= 0);

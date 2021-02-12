@@ -39,9 +39,9 @@ struct sembuf v = { 0, +1, SEM_UNDO};
 int main (int argc, char *argv[]){
 	couleur(VERT);
 	commandcuiserv_t commande2Serv, commandeFromServ;
-	int num_ordre = (int) strtol(argv[1], NULL, 0);
+	//int num_ordre = (int) strtol(argv[1], NULL, 0);
 	pid_t pid = getpid();
-	int num_spe;
+	int *num_spe;
 
 
 	/* cacul de la cle de la file    */
@@ -57,10 +57,6 @@ int main (int argc, char *argv[]){
 	}
 
 
-	if ((id_shm = shmget(cle_serv,sizeof(int),0666|IPC_CREAT)) == -1)
-	{
-		erreur("Erreur lors de la creation du segment de  mémoire partagé...");
-	}
 
 	/* Creation file de message :    */
 
@@ -73,15 +69,12 @@ int main (int argc, char *argv[]){
 		erreur("Erreur lors de la creation de la semaphore...");
 	}
 
-	if ((num_spe = (int)shmat(id_shm,NULL,0)) == (void*)-1)
-    {
-        erreur("Erreur lors de la jointure du segment de mémoires...");
-    }
+
 	
 
 
 	assert( file_mess_serv != -1);
-	num_spe = commandeFromServ.choix;
+	*num_spe = commandeFromServ.choix;
 	u.val = 1;
 
 	if(semctl(id_sem, 0, SETVAL, u) < 0)
@@ -112,16 +105,10 @@ int main (int argc, char *argv[]){
 		printf("\t\tPréparation en cours par le cuisinier n°%d...\n",pid);
 		sleep(rand() % 5);
 
+
 		///fprintf(stdout, "numCo = %d\n", commandeFromServ.choix);
 
-
-
-		if (shmctl(id_shm,IPC_RMID,NULL) == -1)
-		{
-			erreur("Error shmclt : lors de la suppression du segment mémoire");
-			exit(-1);
-			
-		}
+       
 		/* Préparer le plat */
 		couleur(REINIT);
 

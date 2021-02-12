@@ -64,6 +64,7 @@ int main(int argc, char const *argv[]) {
 	choixSpe = (rand() % nbSpe) + 1;
 
 
+	
 	/* creation de la requete : */
 
 	commande.type = 1;

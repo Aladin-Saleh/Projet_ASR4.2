@@ -19,7 +19,7 @@
 /*Cette fonction vas crée la carte, elle devra être lancé dans le main*/
 void cree_carte(struct carte* s_carte,int* liste_ustencil)
 {
-       debug_info("Les données sont envoyé pour créée la carte...");
+    debug_info("Les données sont envoyé pour créée la carte...");
     sleep(2);
     debug_info("Chargement...");
    for (int i = 0; i <=  s_carte->nombre_specialite; i++)
