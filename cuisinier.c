@@ -12,15 +12,18 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/sem.h>
+#include <sys/shm.h>
 #include <signal.h>
 #include <assert.h>
-#include "types.h"
-#include "erreur.h"
+#include "./Header/types.h"
+#include "./Header/erreur.h"
 #include <sys/stat.h>
 
-int id_sem;
+
+
+int id_sem,id_shm;
 int file_mess_serv; 				/* ID de la file, necessairement global pour pouvoir la supprimer a la terminaison */
-key_t cleServ; 						/* cle de la file     */
+key_t cle_serv; 						/* cle de la file     */
 union semun u;
 
 union semun {
@@ -36,36 +39,49 @@ struct sembuf v = { 0, +1, SEM_UNDO};
 int main (int argc, char *argv[]){
 	couleur(VERT);
 	commandcuiserv_t commande2Serv, commandeFromServ;
-	int numOrdre = (int) strtol(argv[1], NULL, 0);
+	int num_ordre = (int) strtol(argv[1], NULL, 0);
 	pid_t pid = getpid();
+	int num_spe;
 
 
 	/* cacul de la cle de la file    */
 
-	cleServ = ftok(FICHIER_CLE, 'a');
+	cle_serv = ftok(FICHIER_CLE, 'a');
 
 
-	assert(cleServ != -1);
+	assert(cle_serv != -1);
 
-	if ((id_sem = semget(cleServ,1,0666|IPC_CREAT)) == -1)
+	if ((id_sem = semget(cle_serv,1,0666|IPC_CREAT)) == -1)
 	{
 		erreur("Erreur lors de la creation de la semaphore...");
 	}
 
+
+	if ((id_shm = shmget(cle_serv,sizeof(int),0666|IPC_CREAT)) == -1)
+	{
+		erreur("Erreur lors de la creation du segment de  mémoire partagé...");
+	}
 
 	/* Creation file de message :    */
 
-	file_mess_serv = msgget(cleServ, 0);
+	file_mess_serv = msgget(cle_serv, 0);
 	//printf("file_mess_serv = %d\n",file_mess_serv);
 	//sleep(10);
 
-	if ((id_sem = semget(cleServ,1,0666|IPC_CREAT)) == -1)
+	if ((id_sem = semget(cle_serv,1,0666|IPC_CREAT)) == -1)
 	{
 		erreur("Erreur lors de la creation de la semaphore...");
 	}
-	
-	assert( file_mess_serv != -1);
 
+	if ((num_spe = (int)shmat(id_shm,NULL,0)) == (void*)-1)
+    {
+        erreur("Erreur lors de la jointure du segment de mémoires...");
+    }
+	
+
+
+	assert( file_mess_serv != -1);
+	num_spe = commandeFromServ.choix;
 	u.val = 1;
 
 	if(semctl(id_sem, 0, SETVAL, u) < 0)
@@ -76,8 +92,7 @@ int main (int argc, char *argv[]){
 	while(1) { 
 
 		couleur(VERT);
-
-		fprintf(stdout, "Cuisinier n° %d attend une commande\n", numOrdre);
+		fprintf(stdout, "Cuisinier n° %d attend une commande\n", pid);
 
 		couleur(REINIT);
 
@@ -88,20 +103,28 @@ int main (int argc, char *argv[]){
 			exit(-1);
 		}
 
-		couleur(VERT);
+		couleur(BLANC);
 		
-		fprintf(stdout, "Cuisinier n° %d a reçu la commande du serveur %d pour le client %d\n", numOrdre, commandeFromServ.expediteur, commandeFromServ.client);
-
-		couleur(REINIT);
+		fprintf(stdout, "Cuisinier n° %d a reçu la commande du serveur %d pour le client %d\n", pid, commandeFromServ.expediteur, commandeFromServ.client);
 
 		/* traitement de la requete : */
+		printf("Le cuisinier n°%d est en train de préparer la spécialité n°%d \n",pid,commandeFromServ.choix);
+		printf("Préparation en cours par le cuisinier n°%d...\n",pid);
+		sleep(rand() % 5);
 
 		///fprintf(stdout, "numCo = %d\n", commandeFromServ.choix);
 
 
-		/* Préparer le plat */
 
-		sleep(rand() % 5);
+		if (shmctl(id_shm,IPC_RMID,NULL) == -1)
+		{
+			erreur("Error shmclt : lors de la suppression du segment mémoire");
+			exit(-1);
+			
+		}
+		/* Préparer le plat */
+		couleur(REINIT);
+
 
 		
 		/* Prépare la commande du serveur */
@@ -121,7 +144,7 @@ int main (int argc, char *argv[]){
 
 		couleur(VERT);
 
-		printf("Le cuisinier %d envoie la commande du client %d au serveur %d\n", numOrdre, commande2Serv.client, commandeFromServ.expediteur);
+		printf("Le cuisinier %d envoie la commande du client %d au serveur %d\n", pid, commande2Serv.client, commandeFromServ.expediteur);
 
 		couleur(REINIT);
 	}

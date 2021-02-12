@@ -34,3 +34,6 @@ git :
 
 gitrm :
 	git rm client *.o main serveur cuisinier carte *.serv && git commit -m "rm" && git push
+
+run :
+	./main 3 3 2 4 5 8 6 3 4 2

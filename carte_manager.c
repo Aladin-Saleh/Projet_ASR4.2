@@ -11,10 +11,10 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "types.h"
-#include "carte_manager.h"
 #include <time.h>
-#include "erreur.h"
+#include "./Header/carte_manager.h"
+#include "./Header/types.h"
+#include "./Header/erreur.h"
 
 /*Cette fonction vas crée la carte, elle devra être lancé dans le main*/
 void cree_carte(struct carte* s_carte,int* liste_ustencil)

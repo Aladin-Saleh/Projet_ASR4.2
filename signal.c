@@ -11,10 +11,7 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "types.h"
-#include "carte_manager.h"
-#include <time.h>
-#include "signal.h"
+
 
 
 

@@ -15,9 +15,9 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "carte_manager.h"
-#include "types.h"
-#include "erreur.h"
+#include "./Header/carte_manager.h"
+#include "./Header/types.h"
+#include "./Header/erreur.h"
 
 int id;
 int continuer = 1;
@@ -43,7 +43,6 @@ int main(int argc, char const *argv[])
     char buffer[10];
 
     srand(time(0));
-    s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
     
     if (argc <= 5)
     {
@@ -55,6 +54,17 @@ int main(int argc, char const *argv[])
         erreur("Le nombre de terminal doit être inferieur au nombre de serveur");
     }
 
+/*
+    for (int i = 1; i <= argc; i++)
+    {
+        if (strtol(argv[i],0,10) < 0)
+        {
+            erreur("Toutes les valeurs doivent être supérieur à 0");
+        }
+        
+    }*/
+    
+
     cle = ftok(FICHIER_CLE,'a');
 
     if (cle == -1)
@@ -62,7 +72,7 @@ int main(int argc, char const *argv[])
         erreur("Erreur lors de la création de la clé...");
     }
     debug_succes("La clé a été créée avec succès...");
-    sleep(1);//Il sert à rien ce sleep, mais je trouvais juste stylé à l'execution :) 
+    sleep(1);//Il sert à rien ce sleep, mais je trouvais juste ça cool à l'execution :) 
     
     if((id = shmget(cle,sizeof(struct carte),IPC_CREAT|0666)) == -1)
     {
@@ -105,7 +115,12 @@ int main(int argc, char const *argv[])
 
     file_mess[0] = msgget(cle, IPC_CREAT | 0666);
 
-    for(int i = 1; i <= nbServ; i++) {
+
+    sleep(1);
+    debug_succes("Element envoyer !");
+    debug_succes("Création de la carte terminer !");
+
+      for(int i = 1; i <= nbServ; i++) {
         sprintf(fichierCle, "t%c.serv", cleVal);
         sprintf(tmp, "touch t%c.serv", cleVal);
         system(tmp);
@@ -116,7 +131,7 @@ int main(int argc, char const *argv[])
 
 
 
-    for (int i = 1; i <= 5; i++) {
+    for (int i = 1; i <= 15; i++) {
         pid_t p = fork();
         assert( p != -1);
 
@@ -155,23 +170,14 @@ int main(int argc, char const *argv[])
 
     printf("Les cuisiniers ont été créés\n");
 
-
-  
-
-    
-    sleep(1);
-    debug_succes("Element envoyer !");
-    debug_succes("Création de la carte terminer !");
-
-    s_carte->test = 0;
+    if (set_signal_handler(SIGINT,arreter_processus) != 0)
+    {
+            erreur("Erreur signal (set)...");
+    }
 
     while(1) {
 
-        if (set_signal_handler(SIGINT,arreter_processus) != 0)
-        {
-            erreur("Erreur signal (set)...");
-        }
-        break;
+       
     }
   
     
@@ -197,7 +203,7 @@ void arreter_processus(int signal)
         exit(-1);
         
     }
-    system("ipcrm --all");
+    //system("ipcrm --all");
     printf("Signal d'arret recu ! \n");
     exit(EXIT_SUCCESS);
 }

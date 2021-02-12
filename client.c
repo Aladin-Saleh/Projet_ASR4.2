@@ -13,8 +13,8 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "types.h"
-#include "erreur.h"
+#include "./Header/types.h"
+#include "./Header/erreur.h"
 #include <time.h>
 
 int main(int argc, char const *argv[]) {

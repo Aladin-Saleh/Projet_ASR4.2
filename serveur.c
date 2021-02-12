@@ -13,9 +13,10 @@
 #include <sys/msg.h>
 #include <signal.h>
 #include <assert.h>
-#include "types.h"
 #include <sys/stat.h>
-
+#include "./Header/carte_manager.h"
+#include "./Header/types.h"
+#include "./Header/erreur.h"
 
 
 int file_mess_cui, pls_lng_file, file_mess; 	/* ID de la file, necessairement global pour pouvoir la supprimer a la terminaison */
