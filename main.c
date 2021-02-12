@@ -33,6 +33,7 @@ int main(int argc, char const *argv[])
     int ind = 0;
     int nbServ = (int) strtol((argv[1]), NULL, 0);
     int nbCui = (int) strtol((argv[2]), NULL, 0);
+    int *nbServeurs, shmid;
     char buffer[10];
 
     srand(time(0));
@@ -47,7 +48,12 @@ int main(int argc, char const *argv[])
     {
         erreur("Le nombre de terminal doit être inferieur au nombre de serveur");
     }
+<<<<<<< HEAD
      
+=======
+
+
+>>>>>>> d104080554abba97211d1fbeeda7708f2d02dd2e
 
     cle = ftok(FICHIER_CLE,'a');
 
@@ -87,8 +93,19 @@ int main(int argc, char const *argv[])
     cree_carte(s_carte,liste_ustencil);
     s_carte->set = 0;
 
+    key_t k = ftok("/tmp",1);
+    assert(k!=-1);
 
-    for (int i = 0; i < 5; i++) {
+    shmid=shmget(k, sizeof(int), IPC_CREAT|0666);
+    assert(shmid >= 0);
+
+    nbServeurs = (int*)shmat(shmid,NULL,0);
+    assert(nbServeurs != (void *)-1);
+
+    *nbServeurs = nbServ;
+
+
+    for (int i = 1; i <= 5; i++) {
         pid_t p = fork();
         assert( p != -1);
 
@@ -101,7 +118,7 @@ int main(int argc, char const *argv[])
 
     printf("Les clients ont été créés\n");
 
-    for (int i = 0; i < nbServ; i++) {
+    for (int i = 1; i <= nbServ; i++) {
         pid_t p = fork();
         assert( p != -1);
 
@@ -114,7 +131,7 @@ int main(int argc, char const *argv[])
 
     printf("Les serveurs ont été créés\n");
 
-    for (int i = 0; i < nbCui; i++) {
+    for (int i = 1; i <= nbCui; i++) {
         pid_t p = fork();
         assert( p != -1);
 

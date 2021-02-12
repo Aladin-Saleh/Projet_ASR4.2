@@ -27,7 +27,7 @@ int main (int argc, char *argv[]){
 	command_t commande;
 	commandcuiserv_t commande2Cui, commandeFromCui;
 	commandcliserv_t commande2Cli;
-	int numOrdre = (int) strtol(argv[1], NULL, 0);
+	//int numOrdre = (int) strtol(argv[1], NULL, 0);
 	pid_t pid = getpid();
 
 
@@ -56,9 +56,7 @@ int main (int argc, char *argv[]){
 
 		couleur(ROUGE);
 
-		fprintf(stdout, "==---------- Nouvelle commande ----------==\n");
-
-		fprintf(stdout, "Serveur n° %d attend une commande\n", numOrdre);
+		fprintf(stdout, "Serveur n° %d attend une commande\n", pid);
 
 		couleur(REINIT);
 
@@ -71,7 +69,7 @@ int main (int argc, char *argv[]){
 
 		couleur(ROUGE);
 		
-		fprintf(stdout, "Serveur n° %d a reçu la commande du client %d\n", numOrdre, commande.expediteur);
+		fprintf(stdout, "Serveur n° %d a reçu la commande du client %d\n", pid, commande.expediteur);
 
 		couleur(REINIT);
 
@@ -97,7 +95,7 @@ int main (int argc, char *argv[]){
 
 		couleur(ROUGE);
 
-		fprintf(stdout, "Serveur n° %d envoie la commande du client %d\n", numOrdre, commande2Cui.client);
+		fprintf(stdout, "Serveur n° %d envoie la commande du client %d\n", pid, commande2Cui.client);
 
 		couleur(REINIT);
 
@@ -111,7 +109,7 @@ int main (int argc, char *argv[]){
 
 		couleur(ROUGE);
 		
-		fprintf(stdout, "Serveur n° %d a reçu le plat du cuisinier %d\n", numOrdre, commandeFromCui.expediteur);
+		fprintf(stdout, "Serveur n° %d a reçu le plat du cuisinier %d\n", pid, commandeFromCui.expediteur);
 
 		couleur(REINIT);
 
@@ -124,7 +122,6 @@ int main (int argc, char *argv[]){
 
 		/* Attente aleatoire */
 
-		sleep(5);
 
 
 		/* envoi du prix : */
@@ -144,11 +141,10 @@ int main (int argc, char *argv[]){
 
 		couleur(ROUGE);
 		
-		fprintf(stdout, "Serveur n° %d a reçu le paiement du client %ld\n", numOrdre, commande2Cli.type);
+		fprintf(stdout, "Serveur n° %d a reçu le paiement du client %ld\n", pid, commande2Cli.type);
 
 		couleur(REINIT);
 
-		sleep(2);
 
 
 		/* envoi de la commande */
@@ -160,13 +156,12 @@ int main (int argc, char *argv[]){
 
 		couleur(ROUGE);
 
-		fprintf(stdout, "Serveur n° %d envoie la commande au client %ld\n", numOrdre, commande2Cli.type);
+		fprintf(stdout, "Serveur n° %d envoie la commande au client %ld\n", pid, commande2Cli.type);
 
 		printf("...\n");
 
 		couleur(REINIT);
-		
-		sleep(2);
+
 
 	}
 	return EXIT_SUCCESS;

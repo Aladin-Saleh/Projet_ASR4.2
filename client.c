@@ -14,6 +14,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "types.h"
+#include "erreur.h"
 #include <time.h>
 
 int main(int argc, char const *argv[]) {
@@ -24,6 +25,7 @@ int main(int argc, char const *argv[]) {
 	commandcliserv_t cmdRecue;
 	int nbSpe = (int) strtol((argv[1]), NULL, 0);
 	//printf("nbSpe = %d\n", nbSpe);
+	int *nbServeurs, shmid;
 
 	int choixSpe = -1;
 	int occupationServeur = -1;
@@ -50,13 +52,19 @@ int main(int argc, char const *argv[]) {
 	key_t k = ftok("/tmp",1);
 	assert(k!=-1);
 
+	shmid=shmget(k, 0, 0);
+	assert(shmid >= 0);
+
+	nbServeurs = (int*)shmat(shmid,NULL,0);
+	assert(nbServeurs != (void *)-1);
+
 	srand(time(NULL));
 	
 	choixSpe = rand() % (nbSpe + 1);
 
 	/* Selection du serveur le moins occupé */
 
-	for(int i = 0; i < 10 /* serveurs.length */; i++) {
+	for(int i = 0; i < *nbServeurs; i++) {
 
 		/************************************************************** PAS ENCORE DE RECUP DES SERVEURS **************************************************************/
 
@@ -106,7 +114,6 @@ int main(int argc, char const *argv[]) {
 
 	couleur(REINIT);
 
-	sleep(2);
 
 	if(msgsnd(file_mess, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
 		perror("Erreur lors de l'envoi de la commande");
@@ -126,7 +133,6 @@ int main(int argc, char const *argv[]) {
 		exit(-1);
 	}
 
-	sleep(2);
 
 	couleur(CYAN);
 
