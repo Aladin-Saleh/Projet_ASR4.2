@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
     int shmid;
     char buffer[10];
 
-    srand(time(0));
+    s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
     
     if (argc <= 5)
     {
@@ -54,17 +54,6 @@ int main(int argc, char const *argv[])
         erreur("Le nombre de terminal doit être inferieur au nombre de serveur");
     }
 
-/*
-    for (int i = 1; i <= argc; i++)
-    {
-        if (strtol(argv[i],0,10) < 0)
-        {
-            erreur("Toutes les valeurs doivent être supérieur à 0");
-        }
-        
-    }*/
-    
-
     cle = ftok(FICHIER_CLE,'a');
 
     if (cle == -1)
@@ -72,7 +61,7 @@ int main(int argc, char const *argv[])
         erreur("Erreur lors de la création de la clé...");
     }
     debug_succes("La clé a été créée avec succès...");
-    sleep(1);//Il sert à rien ce sleep, mais je trouvais juste ça cool à l'execution :) 
+    sleep(1);//Il sert à rien ce sleep, mais je trouvais juste stylé à l'execution :) 
     
     if((id = shmget(cle,sizeof(struct carte),IPC_CREAT|0666)) == -1)
     {
@@ -104,6 +93,10 @@ int main(int argc, char const *argv[])
     key_t k = ftok("/tmp",1);
     assert(k!=-1);
 
+    sleep(1);
+    debug_succes("Element envoyer !");
+    debug_succes("Création de la carte terminer !");
+
     shmid=shmget(k, sizeof(int), IPC_CREAT|0666);
     assert(shmid >= 0);
 
@@ -115,12 +108,7 @@ int main(int argc, char const *argv[])
 
     file_mess[0] = msgget(cle, IPC_CREAT | 0666);
 
-
-    sleep(1);
-    debug_succes("Element envoyer !");
-    debug_succes("Création de la carte terminer !");
-
-      for(int i = 1; i <= nbServ; i++) {
+    for(int i = 1; i <= nbServ; i++) {
         sprintf(fichierCle, "t%c.serv", cleVal);
         sprintf(tmp, "touch t%c.serv", cleVal);
         system(tmp);
@@ -131,7 +119,7 @@ int main(int argc, char const *argv[])
 
 
 
-    for (int i = 1; i <= 15; i++) {
+    for (int i = 1; i <= 10; i++) {
         pid_t p = fork();
         assert( p != -1);
 
@@ -152,6 +140,7 @@ int main(int argc, char const *argv[])
             snprintf(buffer, sizeof(buffer), "%d", i);
             execl("./serveur", "./serveur", buffer, NULL);
             assert(0);
+            sleep(1);
         }
     }
 
@@ -172,16 +161,10 @@ int main(int argc, char const *argv[])
 
     if (set_signal_handler(SIGINT,arreter_processus) != 0)
     {
-            erreur("Erreur signal (set)...");
+        erreur("Erreur signal (set)...");
     }
 
-    while(1) {
-
-       
-    }
-  
-    
-    
+    while(1){}
     
     return 0;
 }
@@ -203,7 +186,7 @@ void arreter_processus(int signal)
         exit(-1);
         
     }
-    //system("ipcrm --all");
+    system("ipcrm --all");
     printf("Signal d'arret recu ! \n");
     exit(EXIT_SUCCESS);
 }

@@ -25,7 +25,6 @@ int main(int argc, char const *argv[]) {
 	command_t commande;
 	commandcliserv_t cmdRecue;
 	int nbSpe = (int) strtol((argv[1]), NULL, 0);
-	int sortie = 0;
 	char cleVal = 'b';
 	char *tmp = NULL;
 	int choixSpe = -1;
@@ -42,12 +41,12 @@ int main(int argc, char const *argv[]) {
 
 	/* Séléction du serveur le moins occupé */
 
-	while(sortie != 1) {
+	while(1) {
 		sprintf(tmp, "t%c.serv", cleVal);
 		cle = ftok(tmp, cleVal);
 		if(cle == -1) {
 			file_mess = pls_crt_file;
-			sortie = 1;
+			break;
 		}
 		file_mess = msgget(cle, 0);
 		msgctl(file_mess, IPC_STAT, &buf);
@@ -60,9 +59,9 @@ int main(int argc, char const *argv[]) {
 
 	/* Choix de la spécialité */
 
-	srand(time(NULL));
+	srand(pid);
 	
-	choixSpe = rand() % (nbSpe + 1);
+	choixSpe = (rand() % nbSpe) + 1;
 
 
 	/* creation de la requete : */
@@ -74,21 +73,25 @@ int main(int argc, char const *argv[]) {
 
 	/* Envoie la commande au serveur */
 
-	if(msgsnd(pls_crt_file, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
+	if(msgsnd(file_mess, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
 		perror("Erreur lors de l'envoi de la commande ");
 		exit(-1);
 	}
 
 	couleur(CYAN);
 
-	printf("Le client %d envoie la commande %d\n", pid, commande.choix);
+	printf("Le client %d envoie la commande %d sur la file ", pid, commande.choix);
+
+	couleur(BLANC);
+
+	printf("%d\n", file_mess);
 
 	couleur(REINIT);
 
 
 	/* attente de la reponse : et paie */
 
-	if (msgrcv(pls_crt_file, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), (long) getpid(), 0) == -1) {	// On attend un message de type 3 (serveur)
+	if (msgrcv(file_mess, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), (long) getpid(), 0) == -1) {	// On attend un message de type 3 (serveur)
 		perror("Erreur lors de la recuperation de la commande ");
 		exit(-1);
 	}
@@ -100,7 +103,7 @@ int main(int argc, char const *argv[]) {
 	couleur(REINIT);
 
 
-	/*if(msgsnd(pls_crt_file, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
+	/*if(msgsnd(file_mess, &commande, sizeof(command_t)-sizeof(long), 0) == -1) {
 		perror("Erreur lors de l'envoi de la commande");
 		exit(-1);
 	}
@@ -113,7 +116,7 @@ int main(int argc, char const *argv[]) {
 
 	/* attente de la commande */
 
-	/*if (msgrcv(pls_crt_file, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), (long) getpid(), 0) == -1) {	// On attend un message de type 3 (serveur)
+	/*if (msgrcv(file_mess, &cmdRecue, sizeof(commandcliserv_t) - sizeof(long), (long) getpid(), 0) == -1) {	// On attend un message de type 3 (serveur)
 		perror("Erreur lors de la recuperation de la commande ");
 		exit(-1);
 	}*/

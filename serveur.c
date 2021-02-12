@@ -19,6 +19,7 @@
 #include "./Header/erreur.h"
 
 
+
 int file_mess_cui, pls_lng_file, file_mess; 	/* ID de la file, necessairement global pour pouvoir la supprimer a la terminaison */
 key_t cleCui, cle; 				/* cle de la file     */
 
@@ -29,7 +30,6 @@ int main (int argc, char *argv[]){
 	commandcuiserv_t commande2Cui, commandeFromCui;
 	commandcliserv_t commande2Cli;
 	struct msqid_ds buff, buf;
-	int sortie = 0;
 	char cleVal = 'b';
 	char *tmp = NULL;
 	//int numOrdre = (int) strtol(argv[1], NULL, 0);
@@ -57,42 +57,57 @@ int main (int argc, char *argv[]){
 	pls_lng_file = msgget(cle, 0);
 	assert(pls_lng_file != -1);
 
-	/* Séléction du serveur le moins occupé */
+	while(1) {
 
-	while(sortie != 1) {
-		sprintf(tmp, "t%c.serv", cleVal);
-		cle = ftok(tmp, cleVal);
-		if(cle == -1) {
-			file_mess = pls_lng_file;
-			sortie = 1;
+		cleVal = 'b';
+
+		/* Séléction du serveur le moins occupé */
+
+		while(1) {
+			sprintf(tmp, "t%c.serv", cleVal);
+			//printf("tmp = %s\ncleVal = %c\n", tmp, cleVal);
+			cle = ftok(tmp, cleVal);
+			// printf("cle = %d\n", cle);
+			if(cle == -1) {
+				file_mess = pls_lng_file;
+				break;
+			}
+			file_mess = msgget(cle, 0);
+			msgctl(file_mess, IPC_STAT, &buf);
+			msgctl(pls_lng_file, IPC_STAT, &buff);
+			// printf("file_mess qnum = %ld\npls_lng_file qnum = %ld\n\n", buf.msg_qnum, buff.msg_qnum);
+
+			if(buff.msg_qnum < buf.msg_qnum)
+				pls_lng_file = file_mess;
+			cleVal++;
 		}
-		file_mess = msgget(cle, 0);
-		msgctl(file_mess, IPC_STAT, &buf);
-		msgctl(pls_lng_file, IPC_STAT, &buff);
-
-		if(buff.msg_qnum < buf.msg_qnum)
-			pls_lng_file = file_mess;
-		cleVal++;
-	}
-
-	while(1) { 
 
 		couleur(ROUGE);
 
-		fprintf(stdout, "Serveur n° %d attend une commande\n", pid);
+		printf("\tLe serveur %d a choisi la file ", pid);
+
+		couleur(BLANC);
+
+		printf("%d\n", file_mess);
+
+		couleur(REINIT);
+
+		couleur(ROUGE);
+
+		fprintf(stdout, "\tServeur n° %d attend une commande\n", pid);
 
 		couleur(REINIT);
 
 		/* serveur attend des commandes de clients, de type 1 :        */
 	 	
-		if (msgrcv(pls_lng_file, &commande, sizeof(command_t) - sizeof(long), 1, 0)== -1 ) {
+		if (msgrcv(file_mess, &commande, sizeof(command_t) - sizeof(long), 1, 0)== -1 ) {
 			perror("Erreur lors de la reception...");
 			exit(-1);
 		}
 
 		couleur(ROUGE);
 		
-		fprintf(stdout, "Serveur n° %d a reçu la commande du client %d\n", pid, commande.expediteur);
+		fprintf(stdout, "\tServeur n° %d a reçu la commande du client %d\n", pid, commande.expediteur);
 
 		couleur(REINIT);
 
@@ -118,7 +133,7 @@ int main (int argc, char *argv[]){
 
 		couleur(ROUGE);
 
-		fprintf(stdout, "Serveur n° %d envoie la commande du client %d\n", pid, commande2Cui.client);
+		fprintf(stdout, "\tServeur n° %d envoie la commande du client %d\n", pid, commande2Cui.client);
 
 		couleur(REINIT);
 
@@ -132,7 +147,7 @@ int main (int argc, char *argv[]){
 
 		couleur(ROUGE);
 		
-		fprintf(stdout, "Serveur n° %d a reçu le plat du cuisinier %d\n", pid, commandeFromCui.expediteur);
+		fprintf(stdout, "\tServeur n° %d a reçu le plat du cuisinier %d\n", pid, commandeFromCui.expediteur);
 
 		couleur(REINIT);
 
@@ -149,7 +164,7 @@ int main (int argc, char *argv[]){
 
 		/* envoi du prix : */
 
-		/*if(msgsnd(pls_lng_file,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
+		/*if(msgsnd(file_mess,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
 			perror("Erreur lors de l'envoi de la commande ");
 			exit(-1);
 		}*/
@@ -157,14 +172,14 @@ int main (int argc, char *argv[]){
 
 		/* attente du paiement */
 
-		/*if (msgrcv(pls_lng_file, &commande, sizeof(command_t) - sizeof(long), 1, 0)== -1 ) {
+		/*if (msgrcv(file_mess, &commande, sizeof(command_t) - sizeof(long), 1, 0)== -1 ) {
 			perror("Erreur lors de la reception...");
 			exit(-1);
 		}
 
 		couleur(ROUGE);
 		
-		fprintf(stdout, "Serveur n° %d a reçu le paiement du client %ld\n", pid, commande2Cli.type);
+		fprintf(stdout, "\tServeur n° %d a reçu le paiement du client %ld\n", pid, commande2Cli.type);
 
 		couleur(REINIT);*/
 
@@ -172,16 +187,14 @@ int main (int argc, char *argv[]){
 
 		/* envoi de la commande */
 
-		if(msgsnd(pls_lng_file,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
+		if(msgsnd(file_mess,&commande2Cli, sizeof(commandcliserv_t) - sizeof(long),IPC_NOWAIT) == -1) {
 			perror("Erreur lors de l'envoi de la commande ");
 			exit(-1);
 		}
 
 		couleur(ROUGE);
 
-		fprintf(stdout, "Serveur n° %d envoie la commande au client %ld\n", pid, commande2Cli.type);
-
-		printf("...\n");
+		fprintf(stdout, "\tServeur n° %d envoie la commande au client %ld\n", pid, commande2Cli.type);
 
 		couleur(REINIT);
 

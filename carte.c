@@ -18,7 +18,7 @@
 
 
 struct carte* s_carte;
-int num_spe;
+int *num_spe;
 int main(int argc, char const *argv[])
 {
     key_t cle;
@@ -48,7 +48,7 @@ int main(int argc, char const *argv[])
     }
 
 
-     if((num_spe = (int)shmat(id_from_cuisinier,NULL,0)) == NULL)
+     if((num_spe = (int *)shmat(id_from_cuisinier,NULL,0)) == NULL)
     { 
         erreur("Erreur shmat (le segment n'a pas pu être associé)...");
     }
@@ -72,10 +72,10 @@ int main(int argc, char const *argv[])
     sleep(3);
     afficher_carte(s_carte,array_spec);
     couleur(BLANC);
-    printf("Le cuisinier prepare une spécialité...\nIl prend la spécialité %d\n",num_spe);
+    printf("Le cuisinier prepare une spécialité...\nIl prend la spécialité %d\n",*num_spe);
     for (int i = 0; i < s_carte->nombre_ustencil; i++)
     {
-       printf("necessite %d ustencile %d \n",array_spec[num_spe][i],i);
+       printf("necessite %d ustencile %d \n",array_spec[*num_spe][i],i);
     }
     sleep(2);
     num_spe = 0;

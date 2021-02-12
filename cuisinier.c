@@ -92,7 +92,7 @@ int main (int argc, char *argv[]){
 	while(1) { 
 
 		couleur(VERT);
-		fprintf(stdout, "Cuisinier n° %d attend une commande\n", pid);
+		fprintf(stdout, "\t\tCuisinier n° %d attend une commande\n", pid);
 
 		couleur(REINIT);
 
@@ -105,11 +105,11 @@ int main (int argc, char *argv[]){
 
 		couleur(BLANC);
 		
-		fprintf(stdout, "Cuisinier n° %d a reçu la commande du serveur %d pour le client %d\n", pid, commandeFromServ.expediteur, commandeFromServ.client);
+		fprintf(stdout, "\t\tCuisinier n° %d a reçu la commande du serveur %d pour le client %d\n", pid, commandeFromServ.expediteur, commandeFromServ.client);
 
 		/* traitement de la requete : */
-		printf("Le cuisinier n°%d est en train de préparer la spécialité n°%d \n",pid,commandeFromServ.choix);
-		printf("Préparation en cours par le cuisinier n°%d...\n",pid);
+		printf("\t\tCuisinier n°%d est en train de préparer la spécialité n°%d \n",pid,commandeFromServ.choix);
+		printf("\t\tPréparation en cours par le cuisinier n°%d...\n",pid);
 		sleep(rand() % 5);
 
 		///fprintf(stdout, "numCo = %d\n", commandeFromServ.choix);
@@ -144,7 +144,7 @@ int main (int argc, char *argv[]){
 
 		couleur(VERT);
 
-		printf("Le cuisinier %d envoie la commande du client %d au serveur %d\n", pid, commande2Serv.client, commandeFromServ.expediteur);
+		printf("\t\tCuisinier %d envoie la commande du client %d au serveur %d\n", pid, commande2Serv.client, commandeFromServ.expediteur);
 
 		couleur(REINIT);
 	}
