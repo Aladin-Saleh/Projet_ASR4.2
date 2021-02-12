@@ -28,3 +28,6 @@ signal.o : signal.c
 
 clean :
 	rm -f client main serveur cuisinier cle.serv carte erreur *.o *.serv && ipcrm --all
+
+gitrm :
+	git rm client main serveur cuisinier cle.serv carte erreur *.o *.serv
