@@ -31,7 +31,7 @@ int main(int argc, char const *argv[]) {
 	pid_t pid = getpid();
 
 	tmp = (char *)malloc((4 + 20) * sizeof(char));
-	sprintf(tmp, "t%c.serv", cleVal);
+	sprintf(tmp, "c%c.serv", cleVal);
 	cle = ftok(tmp, cleVal);
 
 	/* Recuperation file de message :    */
@@ -42,7 +42,7 @@ int main(int argc, char const *argv[]) {
 	/* Séléction du serveur le moins occupé */
 
 	while(1) {
-		sprintf(tmp, "t%c.serv", cleVal);
+		sprintf(tmp, "c%c.serv", cleVal);
 		cle = ftok(tmp, cleVal);
 		if(cle == -1) {
 			file_mess = pls_crt_file;

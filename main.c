@@ -23,8 +23,10 @@
 int id;
 int continuer = 1;
 int *file_mess;
-int nbServ;
+int nb_serveurs;
+//int nb_terminaux
 int id_sem;
+//int *id_sem_term;
 struct carte * s_carte;
 void arreter_processus(int signal);//Arrete tout les processus à la réception du signal
 int set_signal_handler(int sig, void (*handler)(int));//Set le signal
@@ -39,17 +41,19 @@ int set_signal_handler(int sig, void (*handler)(int));//Set le signal
 int main(int argc, char const *argv[])
 {
     key_t cle;
+    //key_t cle_term_base;
     int ind = 0;
-    nbServ = (int) strtol((argv[1]), NULL, 0);
-    int nbCui = (int) strtol((argv[2]), NULL, 0);
-    //int nbTerm = (int) strtol((argv[3]), NULL, 0);
-    char *fichierCle;
-    char cleVal = 'b';
+    nb_serveurs = (int) strtol((argv[1]), NULL, 0);
+    int nb_cuisiniers = (int) strtol((argv[2]), NULL, 0);
+    //nb_terminaux = (int) strtol((argv[3]), NULL, 0);
+    //char *cle_term;
+    char *fi_cle;
+    char cle_val = 'b';
     char *tmp = NULL;
     char buffer[10];
 
 
-    struct sembuf ustensil[] = {{argc - 5,-1,0}, {argc - 5,+1,0}  };
+    //struct sembuf ustensil[] = {{argc - 5,-1,0}, {argc - 5,+1,0}  };
 
     //s_carte = malloc(sizeof(struct carte) * sizeof(struct carte));
     
@@ -69,6 +73,15 @@ int main(int argc, char const *argv[])
     {
         erreur("Erreur lors de la création de la clé...");
     }
+
+    /*
+    cle_term_base = ftok(FICHIER_CLE,'a');
+
+    if (cle == -1)
+    {
+        erreur("Erreur lors de la création de la clé...");
+    }
+    */
     debug_succes("La clé a été créée avec succès...");
     sleep(1);//Il sert à rien ce sleep, mais je trouvais juste stylé à l'execution :) 
     
@@ -89,6 +102,22 @@ int main(int argc, char const *argv[])
     {
         erreur("Erreur lors de la creation de la semaphore...");
     }
+
+    /*cle_term = (char * )malloc((nb_serveurs+1) * sizeof(char));
+    tmp = (char *)malloc((nb_serveurs+1) * sizeof(char));
+
+    for(int i = 1; i <= nb_terminaux; i++) {
+        printf("i = %d\n", i);
+        sprintf(cle_term, "t%c.serv", cle_val);
+        sprintf(tmp, "touch t%c.serv", cle_val);
+        system(tmp);
+        cle_term_base = ftok(cle_term, cle_val);
+        if ((id_sem_term[i] = semget(cle_term_base, i, 0666|IPC_CREAT|IPC_EXCL)) == -1)
+        {
+            erreur("Erreur lors de la creation de la semaphore...");
+        }
+        cle_val++;
+    }*/
     
     int liste_ustencil[argc-5];
     s_carte->nombre_ustencil = argc - 5;
@@ -124,19 +153,19 @@ int main(int argc, char const *argv[])
 
     system("touch cle.serv");
 
-    file_mess = (int *)malloc((nbServ+1) * sizeof(int));
-    fichierCle = (char * )malloc((nbServ+1) * sizeof(char));
-    tmp = (char *)malloc((nbServ+1) * sizeof(char));
+    file_mess = (int *)malloc((nb_serveurs+1) * sizeof(int));
+    fi_cle = (char * )malloc((nb_serveurs+1) * sizeof(char));
+    tmp = (char *)malloc((nb_serveurs+1) * sizeof(char));
 
     file_mess[0] = msgget(cle, IPC_CREAT | 0666);
 
-    for(int i = 1; i <= nbServ; i++) {
-        sprintf(fichierCle, "t%c.serv", cleVal);
-        sprintf(tmp, "touch t%c.serv", cleVal);
+    for(int i = 1; i <= nb_serveurs; i++) {
+        sprintf(fi_cle, "c%c.serv", cle_val);
+        sprintf(tmp, "touch c%c.serv", cle_val);
         system(tmp);
-        cle = ftok(fichierCle, cleVal);
+        cle = ftok(fi_cle, cle_val);
         file_mess[i] = msgget(cle, IPC_CREAT | 0666);
-        cleVal++;
+        cle_val++;
     }
 
 
@@ -154,7 +183,7 @@ int main(int argc, char const *argv[])
 
     printf("Les clients ont été créés\n");
 
-    for (int i = 1; i <= nbServ; i++) {
+    for (int i = 1; i <= nb_serveurs; i++) {
         pid_t p = fork();
         assert( p != -1);
 
@@ -168,7 +197,7 @@ int main(int argc, char const *argv[])
 
     printf("Les serveurs ont été créés\n");
 
-    for (int i = 1; i <= nbCui; i++) {
+    for (int i = 1; i <= nb_cuisiniers; i++) {
         pid_t p = fork();
         assert( p != -1);
 
@@ -209,7 +238,7 @@ void arreter_processus(int signal)
         
     }
     
-    for(int i = 0; i <= nbServ; i++) {
+    for(int i = 0; i <= nb_serveurs; i++) {
         if (msgctl(file_mess[i], IPC_RMID, NULL) == -1) {
             erreur("Error shmclt : lors de la suppression des files");
             exit(-1);

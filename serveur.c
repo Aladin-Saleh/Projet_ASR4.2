@@ -49,7 +49,7 @@ int main (int argc, char *argv[]){
 	assert( file_mess_cui != -1);
 
 	tmp = (char *)malloc((4 + 20) * sizeof(char));
-	sprintf(tmp, "t%c.serv", cleVal);
+	sprintf(tmp, "c%c.serv", cleVal);
 	cle = ftok(tmp, cleVal);
 
 	/* Recuperation file de message :    */
@@ -64,7 +64,7 @@ int main (int argc, char *argv[]){
 		/* Séléction du serveur le moins occupé */
 
 		while(1) {
-			sprintf(tmp, "t%c.serv", cleVal);
+			sprintf(tmp, "c%c.serv", cleVal);
 			//printf("tmp = %s\ncleVal = %c\n", tmp, cleVal);
 			cle = ftok(tmp, cleVal);
 			// printf("cle = %d\n", cle);
